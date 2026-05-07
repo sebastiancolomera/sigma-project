@@ -7,9 +7,6 @@ public class Usuario {
     private String contrasena;
     private String rol;
 
-    public Usuario() {
-    }
-
     public Usuario(String nombre, String contrasena, String rol) {
         this.nombre = nombre;
         this.contrasena = contrasena;
