@@ -25,7 +25,7 @@ public class GestorSigma {
 
     public boolean registrarUsuario(String nombre, String contrasena, String rol) {
         String rolLower = rol.toLowerCase();
-        if (rolLower.equals("superusuario") && !rolLower.equals("lider") && !rolLower.equals("usuario")) {
+        if (!rolLower.equals("superusuario") && !rolLower.equals("lider") && !rolLower.equals("usuario")) {
             return false;
         }
 
