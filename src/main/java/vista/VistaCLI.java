@@ -5,10 +5,6 @@ import modelo.Usuario;
 import java.util.Scanner;
 import java.util.List;
 
-/**
- * VistaCLI maneja toda la interacción por consola.
- * No procesa lógica, solo captura datos y muestra resultados.
- */
 public class VistaCLI {
     private GestorSigma controlador;
     private Scanner scanner;
@@ -17,6 +13,11 @@ public class VistaCLI {
     public VistaCLI(GestorSigma controlador) {
         this.controlador = controlador;
         this.scanner = new Scanner(System.in);
+    }
+
+    // Método temporal para facilitar las pruebas
+    public void setUsuarioLogueado(Usuario usuario) {
+        this.usuarioLogueado = usuario;
     }
 
     public void iniciar() {
@@ -115,7 +116,7 @@ public class VistaCLI {
         if (scanner.nextLine().equalsIgnoreCase("s")) {
             controlador.resetearSistema();
             System.out.println("Sistema reseteado.");
-            usuarioLogueado = null; // Fuerza re-login
+            usuarioLogueado = null;
         }
     }
 
