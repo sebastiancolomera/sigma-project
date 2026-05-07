@@ -56,4 +56,10 @@ public class GestorSigma {
     public List<Meta> getMetas() {
         return new ArrayList<>(metas);
     }
+
+    public void resetearSistema() {
+        this.usuarios.clear();
+        this.metas.clear();
+        registrarUsuario("admin", "admin123", "superusuario");
+    }
 }
