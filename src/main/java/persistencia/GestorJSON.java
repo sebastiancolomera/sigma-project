@@ -60,4 +60,29 @@ public class GestorJSON {
             return new ArrayList<>();
         }
     }
+
+    public void guardarUsuarios(ArrayList<Usuario> usuarios, String rutaArchivo) {
+        try (FileWriter writer = new FileWriter(rutaArchivo)) {
+            gson.toJson(usuarios, writer);
+            System.out.println("Los Usuarios fueron guardados correctamente en " + rutaArchivo);
+        } catch (IOException e) {
+            System.out.println("No se pudo guardar el archivo de usuarios: " + e.getMessage());
+        }
+    }
+
+    public ArrayList<Usuario> cargarUsuarios(String rutaArchivo) {
+        try (FileReader reader = new FileReader(rutaArchivo)) {
+            Type tipoListaUsuarios = new TypeToken<ArrayList<Usuario>>() {}.getType();
+            ArrayList<Usuario> usuariosCargados = gson.fromJson(reader, tipoListaUsuarios);
+
+            if (usuariosCargados == null) {
+                return new ArrayList<>();
+            }
+            return usuariosCargados;
+
+        } catch (IOException e) {
+            System.out.println("[Aviso] No se encontró el archivo de usuarios. Se creará uno nuevo al guardar.");
+            return new ArrayList<>();
+        }
+    }
 }
