@@ -88,4 +88,53 @@ class MetaTest {
         meta.setNombre("Nuevo nombre");
         assertEquals("Nuevo nombre", meta.getNombre());
     }
+    @Test
+    @DisplayName("Debería calcular 0% de progreso cuando no hay tareas")
+    void testCalcularProgresoConListaVacia() {
+        Meta meta = new Meta("Meta sin tareas");
+        assertEquals(0, meta.calcularProgreso());
+    }
+
+    @Test
+    @DisplayName("Debería calcular 0% de progreso cuando ninguna tarea está completada")
+    void testCalcularProgresoCeroPorciento() {
+        Meta meta = new Meta("Meta");
+        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, "Pendiente");
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, "En Proceso");
+
+        meta.agregarTarea(tarea1);
+        meta.agregarTarea(tarea2);
+
+        assertEquals(0, meta.calcularProgreso());
+    }
+
+    @Test
+    @DisplayName("Debería calcular 100% de progreso cuando todas las tareas están completadas")
+    void testCalcularProgresoCienPorciento() {
+        Meta meta = new Meta("Meta");
+        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, "Completa");
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, "Completa");
+
+        meta.agregarTarea(tarea1);
+        meta.agregarTarea(tarea2);
+
+        assertEquals(100, meta.calcularProgreso());
+    }
+
+    @Test
+    @DisplayName("Debería calcular progreso parcial correctamente")
+    void testCalcularProgresoParcial() {
+        Meta meta = new Meta("Meta");
+        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, "Completa");
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, "Pendiente");
+        Tarea tarea3 = new Tarea("T3", "D3", usuario, fechaInicio, fechaTermino, "Completa");
+        Tarea tarea4 = new Tarea("T4", "D4", usuario, fechaInicio, fechaTermino, "Pendiente");
+
+        meta.agregarTarea(tarea1);
+        meta.agregarTarea(tarea2);
+        meta.agregarTarea(tarea3);
+        meta.agregarTarea(tarea4);
+
+        assertEquals(50, meta.calcularProgreso());
+    }
 }
