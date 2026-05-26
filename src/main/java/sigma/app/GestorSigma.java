@@ -1,7 +1,7 @@
-package app;
+package sigma.app;
 
-import modelo.Usuario;
-import modelo.Meta;
+import sigma.modelo.Usuario;
+import sigma.modelo.Meta;
 import java.util.ArrayList;
 import java.util.List;
 

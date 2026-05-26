@@ -1,8 +1,7 @@
-package persistencia;
+package sigma.persistencia;
 
-import modelo.Meta;
-import modelo.Usuario;
-import modelo.Tarea;
+import sigma.modelo.Meta;
+import sigma.modelo.Usuario;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;

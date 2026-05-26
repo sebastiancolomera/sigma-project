@@ -1,4 +1,4 @@
-package modelo;
+package sigma.modelo;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

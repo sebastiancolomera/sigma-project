@@ -1,4 +1,4 @@
-package modelo;
+package sigma.modelo;
 
 import java.util.ArrayList;
 
