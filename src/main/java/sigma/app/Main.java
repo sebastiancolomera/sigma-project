@@ -1,7 +1,7 @@
-package app;
+package sigma.app;
 
-import vista.VistaCLI;
-import modelo.Usuario;
+import sigma.vista.VistaCLI;
+import sigma.modelo.Usuario;
 
 public class Main {
     public static void main(String[] args) {

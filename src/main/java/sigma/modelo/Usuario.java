@@ -1,6 +1,4 @@
-package modelo;
-
-import java.time.LocalDate;
+package sigma.modelo;
 
 public class Usuario {
     private String nombre;

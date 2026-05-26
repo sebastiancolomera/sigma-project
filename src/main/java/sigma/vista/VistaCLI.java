@@ -1,7 +1,7 @@
-package vista;
+package sigma.vista;
 
-import app.GestorSigma;
-import modelo.Usuario;
+import sigma.app.GestorSigma;
+import sigma.modelo.Usuario;
 import java.util.Scanner;
 import java.util.List;
 
