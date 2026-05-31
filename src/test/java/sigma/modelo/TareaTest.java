@@ -14,7 +14,7 @@ class TareaTest {
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario("Juan", "usuario", "pass");
+        usuario = new Usuario("Juan", "pass", RolUsuario.USUARIO);
         fechaInicio = LocalDate.of(2026, 4, 1);
         fechaTermino = LocalDate.of(2026, 4, 30);
     }
@@ -23,14 +23,14 @@ class TareaTest {
     @DisplayName("Debería crear una tarea con todos los campos correctamente")
     void testConstructorConParametros() {
         Tarea tarea = new Tarea("Estudiar Java", "Completar pruebas unitarias",
-                usuario, fechaInicio, fechaTermino, "Pendiente");
+                usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
 
         assertEquals("Estudiar Java", tarea.getTitulo());
         assertEquals("Completar pruebas unitarias", tarea.getDescripcion());
         assertEquals(usuario, tarea.getAsignado());
         assertEquals(fechaInicio, tarea.getFechaInicio());
         assertEquals(fechaTermino, tarea.getFechaTermino());
-        assertEquals("Pendiente", tarea.getEstado());
+        assertEquals(EstadoTarea.PENDIENTE, tarea.getEstado());
     }
 
     @Test
@@ -65,7 +65,7 @@ class TareaTest {
     @Test
     @DisplayName("Debería poder modificar el usuario asignado")
     void testSetAsignado() {
-        Usuario otroUsuario = new Usuario("María", "lider", "pass");
+        Usuario otroUsuario = new Usuario("María", "pass", RolUsuario.LIDER);
         Tarea tarea = new Tarea();
         tarea.setAsignado(otroUsuario);
         assertEquals(otroUsuario, tarea.getAsignado());
@@ -86,13 +86,30 @@ class TareaTest {
     }
 
     @Test
-    @DisplayName("Debería poder modificar el estado de la tarea")
+    @DisplayName("Debería poder modificar el estado de la tarea usando el enum")
     void testSetEstado() {
         Tarea tarea = new Tarea();
-        tarea.setEstado("Completa");
-        assertEquals("Completa", tarea.getEstado());
+        tarea.setEstado(EstadoTarea.COMPLETADA);
+        assertEquals(EstadoTarea.COMPLETADA, tarea.getEstado());
 
-        tarea.setEstado("En Proceso");
-        assertEquals("En Proceso", tarea.getEstado());
+        tarea.setEstado(EstadoTarea.EN_PROCESO);
+        assertEquals(EstadoTarea.EN_PROCESO, tarea.getEstado());
+
+        tarea.setEstado(EstadoTarea.POSTERGADA);
+        assertEquals(EstadoTarea.POSTERGADA, tarea.getEstado());
+
+        tarea.setEstado(EstadoTarea.FUERA_DE_PLAZO);
+        assertEquals(EstadoTarea.FUERA_DE_PLAZO, tarea.getEstado());
+
+        tarea.setEstado(EstadoTarea.PENDIENTE);
+        assertEquals(EstadoTarea.PENDIENTE, tarea.getEstado());
+    }
+
+    @Test
+    @DisplayName("Debería poder obtener el estado como String")
+    void testGetEstadoComoString() {
+        Tarea tarea = new Tarea();
+        tarea.setEstado(EstadoTarea.COMPLETADA);
+        assertEquals("COMPLETADA", tarea.getEstado().toString());
     }
 }
