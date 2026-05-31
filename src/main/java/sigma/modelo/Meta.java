@@ -1,10 +1,11 @@
 package sigma.modelo;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Meta {
     private String nombre;
-    private ArrayList<Tarea> tareas;
+    private List<Tarea> tareas;
 
     public Meta() {
         this.tareas = new ArrayList<>();
@@ -28,7 +29,7 @@ public class Meta {
         this.nombre = nombre;
     }
 
-    public ArrayList<Tarea> getTareas() {
+    public List<Tarea> getTareas() {
         return tareas;
     }
 
@@ -44,21 +45,14 @@ public class Meta {
         this.tareas.remove(tarea);
     }
 
-    public int calcularProgreso() {
-        if (tareas.isEmpty()) {
-            return 0;
-        }
-
-        int totalTareas = tareas.size();
-        int tareasCompletadas = 0;
-
-        for (int i = 0; i < tareas.size(); i++) {
-            Tarea tareaActual = tareas.get(i);
-            if (tareaActual.getEstado().equals("Completado")) {
-                tareasCompletadas++;
+    public double calcularProgreso() {
+        if (tareas.isEmpty()) return 0.0;
+        int completadas = 0;
+        for (Tarea tarea : tareas) {
+            if (tarea.getEstado() == EstadoTarea.COMPLETADA) {
+                completadas++;
             }
         }
-
-        return (tareasCompletadas * 100) / totalTareas;
+        return (double) completadas / tareas.size() * 100.0;
     }
 }

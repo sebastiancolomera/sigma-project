@@ -8,12 +8,12 @@ public class Tarea {
     private Usuario asignado;
     private LocalDate fechaInicio;
     private LocalDate fechaTermino;
-    private String estado;
+    private EstadoTarea estado;
 
     public Tarea() {
     }
 
-    public Tarea(String titulo, String descripcion, Usuario asignado, LocalDate fechaInicio, LocalDate fechaTermino, String estado) {
+    public Tarea(String titulo, String descripcion, Usuario asignado, LocalDate fechaInicio, LocalDate fechaTermino, EstadoTarea estado) {
         this.titulo = titulo;
         this.descripcion = descripcion;
         this.asignado = asignado;
@@ -62,11 +62,11 @@ public class Tarea {
         this.fechaTermino = fechaTermino;
     }
 
-    public String getEstado() {
+    public EstadoTarea getEstado() {
         return estado;
     }
 
-    public void setEstado(String estado) {
+    public void setEstado(EstadoTarea estado) {
         this.estado = estado;
     }
 }
