@@ -1,21 +1,22 @@
 package sigma.app;
 
-import sigma.vista.VistaCLI;
-import sigma.modelo.Usuario;
+import sigma.modelo.RolUsuario;
+import sigma.vista.gui.LoginFrame;
+import javax.swing.SwingUtilities;
 
 public class Main {
     public static void main(String[] args) {
-
         GestorSigma controlador = new GestorSigma();
 
-        controlador.registrarUsuario("admin", "admin123", "superusuario");
+        controlador.cargarDatos();
 
-        Usuario usuarioAdmin = controlador.autenticarUsuario("admin", "admin123");
+        if (comtrolador.getUsuario().isEmpty()) {
+            controlador.registrarUsuario("admin", "admin123", RolUsuario.SUPERUSUARIO);
+        }
 
-        VistaCLI vista = new VistaCLI(controlador);
-
-        vista.setUsuarioLogueado(usuarioAdmin);
-
-        vista.iniciar();
+        SwingUtilities.invokeLater(()-> {
+            LoginFrame loginFrame = new LoginFrame(controlador);
+            loginFrame.setVisible(true);
+        });
     }
 }
