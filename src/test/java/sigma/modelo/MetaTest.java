@@ -137,4 +137,10 @@ class MetaTest {
 
         assertEquals(50, meta.calcularProgreso());
     }
+    @Test
+    @DisplayName("Debería calcular 0% de progreso cuando la meta no tiene tareas")
+    void testCalcularProgresoSinTareas() {
+        Meta meta = new Meta("Meta sin tareas");
+        assertEquals(0, meta.calcularProgreso());
+    }
 }
