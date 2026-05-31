@@ -22,7 +22,6 @@ class GestorJSONTest {
 
     @AfterEach
     void tearDown() {
-        // Limpiar archivos de prueba después de cada test
         new File(RUTA_TEST_USUARIOS).delete();
         new File(RUTA_TEST_METAS).delete();
     }
@@ -31,9 +30,9 @@ class GestorJSONTest {
     @DisplayName("Debería guardar y cargar una lista de usuarios correctamente")
     void testGuardarYCargarUsuarios() {
         ArrayList<Usuario> usuariosOriginal = new ArrayList<>();
-        usuariosOriginal.add(new Usuario("juan", "pass123", "superusuario"));
-        usuariosOriginal.add(new Usuario("maria", "pass456", "usuario"));
-        usuariosOriginal.add(new Usuario("pedro", "pass789", "lider"));
+        usuariosOriginal.add(new Usuario("juan", "pass123", RolUsuario.SUPERUSUARIO));
+        usuariosOriginal.add(new Usuario("maria", "pass456", RolUsuario.USUARIO));
+        usuariosOriginal.add(new Usuario("pedro", "pass789", RolUsuario.LIDER));
 
         gestorJSON.guardarUsuarios(usuariosOriginal, RUTA_TEST_USUARIOS);
         ArrayList<Usuario> usuariosCargados = gestorJSON.cargarUsuarios(RUTA_TEST_USUARIOS);
@@ -42,7 +41,7 @@ class GestorJSONTest {
         assertEquals(3, usuariosCargados.size());
         assertEquals("juan", usuariosCargados.get(0).getNombre());
         assertEquals("pass123", usuariosCargados.get(0).getContrasena());
-        assertEquals("superusuario", usuariosCargados.get(0).getRol());
+        assertEquals(RolUsuario.SUPERUSUARIO, usuariosCargados.get(0).getRol());
         assertEquals("maria", usuariosCargados.get(1).getNombre());
         assertEquals("pedro", usuariosCargados.get(2).getNombre());
     }
@@ -90,12 +89,12 @@ class GestorJSONTest {
         ArrayList<Meta> metasOriginal = new ArrayList<>();
         Meta meta = new Meta("Proyecto SIGMA");
 
-        Usuario usuario = new Usuario("felipe", "pass123", "usuario");
+        Usuario usuario = new Usuario("felipe", "pass123", RolUsuario.USUARIO);
         Tarea tarea = new Tarea("Implementar tests", "Crear pruebas JUnit",
                 usuario,
                 LocalDate.of(2026, 5, 1),
                 LocalDate.of(2026, 5, 31),
-                "Pendiente");
+                EstadoTarea.PENDIENTE);
         meta.agregarTarea(tarea);
         metasOriginal.add(meta);
 
@@ -109,7 +108,7 @@ class GestorJSONTest {
         ArrayList<Tarea> tareasCargadas = metasCargadas.get(0).getTareas();
         assertEquals(1, tareasCargadas.size());
         assertEquals("Implementar tests", tareasCargadas.get(0).getTitulo());
-        assertEquals("Pendiente", tareasCargadas.get(0).getEstado());
+        assertEquals(EstadoTarea.PENDIENTE, tareasCargadas.get(0).getEstado());
     }
 
     @Test
@@ -139,12 +138,12 @@ class GestorJSONTest {
         ArrayList<Meta> metasOriginal = new ArrayList<>();
         Meta meta = new Meta("Meta con fechas");
 
-        Usuario usuario = new Usuario("user", "pass", "usuario");
+        Usuario usuario = new Usuario("user", "pass", RolUsuario.USUARIO);
         Tarea tarea = new Tarea("Tarea con fecha", "Descripcion",
                 usuario,
                 LocalDate.of(2025, 1, 15),
                 LocalDate.of(2025, 12, 20),
-                "Pendiente");
+                EstadoTarea.PENDIENTE);
         meta.agregarTarea(tarea);
         metasOriginal.add(meta);
 
