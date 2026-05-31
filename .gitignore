@@ -11,4 +11,7 @@ pom.xml.releaseBackup
 pom.xml.versionsBackup
 
 # Archivos de datos locales JSON
-*.json
+data/*.json
+
+# Rastrear la carpeta data/ aunque los JSONs no se suban
+!data/.gitkeep
