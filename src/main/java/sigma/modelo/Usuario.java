@@ -3,9 +3,9 @@ package sigma.modelo;
 public class Usuario {
     private String nombre;
     private String contrasena;
-    private String rol;
+    private RolUsuario rol;
 
-    public Usuario(String nombre, String contrasena, String rol) {
+    public Usuario(String nombre, String contrasena, RolUsuario rol) {
         this.nombre = nombre;
         this.contrasena = contrasena;
         this.rol = rol;
@@ -14,7 +14,6 @@ public class Usuario {
     public String getNombre() {
         return nombre;
     }
-
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -22,37 +21,24 @@ public class Usuario {
     public String getContrasena() {
         return contrasena;
     }
-
     public void setContrasena(String contrasena) {
         this.contrasena = contrasena;
     }
 
-    public String getRol() {
+    public RolUsuario getRol() {
         return rol;
     }
-
-    public void setRol(String rol) {
+    public void setRol(RolUsuario rol) {
         this.rol = rol;
     }
 
     public boolean esSuperusuario() {
-        if (rol.equals("superusuario")) {
-            return true;
-        }
-        return false;
+       return this.rol == RolUsuario.SUPERUSUARIO;
     }
-
     public boolean esLider() {
-        if (rol.equals("lider")) {
-            return true;
-        }
-        return false;
+        return this.rol == RolUsuario.LIDER;
     }
-
     public boolean esUsuario() {
-        if (rol.equals("usuario")) {
-            return true;
-        }
-        return false;
+        return this.rol == RolUsuario.USUARIO;
     }
 }
