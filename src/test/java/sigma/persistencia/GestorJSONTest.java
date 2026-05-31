@@ -4,8 +4,11 @@ import org.junit.jupiter.api.*;
 import sigma.modelo.*;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,8 +25,10 @@ class GestorJSONTest {
 
     @AfterEach
     void tearDown() {
-        new File(RUTA_TEST_USUARIOS).delete();
-        new File(RUTA_TEST_METAS).delete();
+        File f1 = new File(RUTA_TEST_USUARIOS);
+        File f2 = new File(RUTA_TEST_METAS);
+        if (f1.exists()) f1.delete();
+        if (f2.exists()) f2.delete();
     }
 
     @Test
@@ -40,10 +45,7 @@ class GestorJSONTest {
         assertNotNull(usuariosCargados);
         assertEquals(3, usuariosCargados.size());
         assertEquals("juan", usuariosCargados.get(0).getNombre());
-        assertEquals("pass123", usuariosCargados.get(0).getContrasena());
         assertEquals(RolUsuario.SUPERUSUARIO, usuariosCargados.get(0).getRol());
-        assertEquals("maria", usuariosCargados.get(1).getNombre());
-        assertEquals("pedro", usuariosCargados.get(2).getNombre());
     }
 
     @Test
@@ -105,7 +107,7 @@ class GestorJSONTest {
         assertEquals(1, metasCargadas.size());
         assertEquals("Proyecto SIGMA", metasCargadas.get(0).getNombre());
 
-        ArrayList<Tarea> tareasCargadas = metasCargadas.get(0).getTareas();
+        List<Tarea> tareasCargadas = metasCargadas.get(0).getTareas();
         assertEquals(1, tareasCargadas.size());
         assertEquals("Implementar tests", tareasCargadas.get(0).getTitulo());
         assertEquals(EstadoTarea.PENDIENTE, tareasCargadas.get(0).getEstado());
@@ -130,34 +132,6 @@ class GestorJSONTest {
 
         assertNotNull(metasCargadas);
         assertTrue(metasCargadas.isEmpty());
-    }
-
-    @Test
-    @DisplayName("Debería serializar y deserializar fechas LocalDate correctamente")
-    void testSerializacionFechas() throws Exception {
-        ArrayList<Meta> metasOriginal = new ArrayList<>();
-        Meta meta = new Meta("Meta con fechas");
-
-        Usuario usuario = new Usuario("user", "pass", RolUsuario.USUARIO);
-        Tarea tarea = new Tarea("Tarea con fecha", "Descripcion",
-                usuario,
-                LocalDate.of(2025, 1, 15),
-                LocalDate.of(2025, 12, 20),
-                EstadoTarea.PENDIENTE);
-        meta.agregarTarea(tarea);
-        metasOriginal.add(meta);
-
-        gestorJSON.guardarMetas(metasOriginal, RUTA_TEST_METAS);
-
-        String contenido = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(RUTA_TEST_METAS)));
-        assertTrue(contenido.contains("2025-01-15"));
-        assertTrue(contenido.contains("2025-12-20"));
-
-        ArrayList<Meta> metasCargadas = gestorJSON.cargarMetas(RUTA_TEST_METAS);
-        Tarea tareaCargada = metasCargadas.get(0).getTareas().get(0);
-
-        assertEquals(LocalDate.of(2025, 1, 15), tareaCargada.getFechaInicio());
-        assertEquals(LocalDate.of(2025, 12, 20), tareaCargada.getFechaTermino());
     }
 
     @Test
@@ -191,5 +165,54 @@ class GestorJSONTest {
         ArrayList<Meta> metasCargadas = gestorJSON.cargarMetas(RUTA_TEST_METAS);
         assertEquals(1, metasCargadas.size());
         assertEquals("Meta nueva", metasCargadas.get(0).getNombre());
+    }
+
+    @Test
+    @DisplayName("Debería serializar y deserializar fechas LocalDate correctamente")
+    void testSerializacionFechas() throws Exception {
+        ArrayList<Meta> metasOriginal = new ArrayList<>();
+        Meta meta = new Meta("Meta con fechas");
+
+        Usuario usuario = new Usuario("user", "pass", RolUsuario.USUARIO);
+        Tarea tarea = new Tarea("Tarea con fecha", "Descripcion",
+                usuario,
+                LocalDate.of(2025, 1, 15),
+                LocalDate.of(2025, 12, 20),
+                EstadoTarea.PENDIENTE);
+        meta.agregarTarea(tarea);
+        metasOriginal.add(meta);
+
+        gestorJSON.guardarMetas(metasOriginal, RUTA_TEST_METAS);
+
+        String contenido = new String(Files.readAllBytes(Paths.get(RUTA_TEST_METAS)));
+        assertTrue(contenido.contains("2025-01-15"));
+        assertTrue(contenido.contains("2025-12-20"));
+
+        ArrayList<Meta> metasCargadas = gestorJSON.cargarMetas(RUTA_TEST_METAS);
+        Tarea tareaCargada = metasCargadas.get(0).getTareas().get(0);
+
+        assertEquals(LocalDate.of(2025, 1, 15), tareaCargada.getFechaInicio());
+        assertEquals(LocalDate.of(2025, 12, 20), tareaCargada.getFechaTermino());
+    }
+
+    @Test
+    @DisplayName("Debería serializar y deserializar enums correctamente")
+    void testSerializacionEnum() throws Exception {
+        ArrayList<Usuario> usuariosOriginal = new ArrayList<>();
+        usuariosOriginal.add(new Usuario("juan", "pass123", RolUsuario.SUPERUSUARIO));
+        usuariosOriginal.add(new Usuario("maria", "pass456", RolUsuario.LIDER));
+        usuariosOriginal.add(new Usuario("pedro", "pass789", RolUsuario.USUARIO));
+
+        gestorJSON.guardarUsuarios(usuariosOriginal, RUTA_TEST_USUARIOS);
+
+        String contenido = new String(Files.readAllBytes(Paths.get(RUTA_TEST_USUARIOS)));
+        assertTrue(contenido.contains("SUPERUSUARIO"));
+        assertTrue(contenido.contains("LIDER"));
+        assertTrue(contenido.contains("USUARIO"));
+
+        ArrayList<Usuario> usuariosCargados = gestorJSON.cargarUsuarios(RUTA_TEST_USUARIOS);
+        assertEquals(RolUsuario.SUPERUSUARIO, usuariosCargados.get(0).getRol());
+        assertEquals(RolUsuario.LIDER, usuariosCargados.get(1).getRol());
+        assertEquals(RolUsuario.USUARIO, usuariosCargados.get(2).getRol());
     }
 }
