@@ -1,7 +1,6 @@
 package sigma.app;
 
-import sigma.modelo.Usuario;
-import sigma.modelo.Meta;
+import sigma.modelo.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +13,14 @@ public class GestorSigma {
         this.metas = new ArrayList<>();
     }
 
+    public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
+        for (Usuario u : usuarios) {
+            if (u.getNombre().equals(nombre)) return false;
+        }
+        usuarios.add(new Usuario(nombre, contrasena, rol));
+        return true;
+    }
+
     public Usuario autenticarUsuario(String nombre, String contrasena) {
         for (Usuario u : usuarios) {
             if (u.getNombre().equals(nombre) && u.getContrasena().equals(contrasena)) {
@@ -23,22 +30,10 @@ public class GestorSigma {
         return null;
     }
 
-    public boolean registrarUsuario(String nombre, String contrasena, String rol) {
-        String rolLower = rol.toLowerCase();
-        if (!rolLower.equals("superusuario") && !rolLower.equals("lider") && !rolLower.equals("usuario")) {
-            return false;
-        }
-
-        for (Usuario u : usuarios) {
-            if (u.getNombre().equalsIgnoreCase(nombre)) return false;
-        }
-        return usuarios.add(new Usuario(nombre, contrasena, rolLower));
-    }
-
-    public boolean actualizarRol(String nombreUsuario, String nuevoRol) {
+    public boolean actualizarRol(String nombreUsuario, RolUsuario nuevoRol) {
         for (Usuario u : usuarios) {
             if (u.getNombre().equalsIgnoreCase(nombreUsuario)) {
-                u.setRol(nuevoRol.toLowerCase());
+                u.setRol(nuevoRol);
                 return true;
             }
         }
@@ -46,7 +41,7 @@ public class GestorSigma {
     }
 
     public boolean eliminarUsuario(String nombreUsuario) {
-        return usuarios.removeIf(u -> u.getNombre().equalsIgnoreCase(nombreUsuario));
+        return usuarios.removeIf(u -> u.getNombre().equals(nombreUsuario));
     }
 
     public List<Usuario> getUsuarios() {
@@ -58,8 +53,59 @@ public class GestorSigma {
     }
 
     public void resetearSistema() {
-        this.usuarios.clear();
-        this.metas.clear();
-        registrarUsuario("admin", "admin123", "superusuario");
+        usuarios.clear();
+        metas.clear();
+    }
+
+    public Meta buscarMeta(String nombre) {
+        for (Meta m : metas) {
+            if (m.getNombre().equals(nombre)) {
+                return m;
+            }
+        }
+        return null;
+    }
+
+    public boolean agregarMeta(String nombre) {
+        if (buscarMeta(nombre) != null) return false;
+        metas.add(new Meta(nombre));
+        return true;
+    }
+
+    public boolean eliminarMeta(String nombre) {
+        return metas.removeIf(m -> m.getNombre().equals(nombre));
+    }
+
+    public boolean agregarTareaAMeta(String nombreMeta, Tarea tarea) {
+        Meta meta = buscarMeta(nombreMeta);
+        if (meta != null) {
+            meta.agregarTarea(tarea);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean cambiarEstadoTarea(String titulo, EstadoTarea nuevo) {
+        for (Meta meta : metas) {
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getTitulo().equals(titulo)) {
+                    tarea.setEstado(nuevo);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public List<Tarea> getTareasDeUsuario(Usuario u) {
+        List<Tarea> tareasUsuario = new ArrayList<>();
+        for (Meta meta : metas) {
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getAsignado().getNombre().equals(u.getNombre())) {
+                    tareasUsuario.add(tarea);
+                }
+            }
+        }
+        return tareasUsuario;
     }
 }
