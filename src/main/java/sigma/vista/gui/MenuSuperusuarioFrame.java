@@ -1,14 +1,14 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
-import sigma.modelo.RolUsuario;
+
 import javax.swing.*;
 import java.awt.*;
 
-public class MenuSuperUsuarioFrame extends JFrame {
+public class MenuSuperusuarioFrame extends JFrame {
     private GestorSigma controlador;
 
-    public MenuSuperUsuarioFrame(GestorSigma controlador) {
+    public MenuSuperusuarioFrame(GestorSigma controlador) {
         this.controlador = controlador;
         setTitle("SIGMA - Menú Superusuario");
         setSize(600, 400);
