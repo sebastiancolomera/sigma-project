@@ -55,6 +55,8 @@ public class GestorSigma {
     public void resetearSistema() {
         usuarios.clear();
         metas.clear();
+        usuarios.add(new Usuario("admin", "admin123", RolUsuario.SUPERUSUARIO));
+        guardarDatos();
     }
 
     public Meta buscarMeta(String nombre) {
