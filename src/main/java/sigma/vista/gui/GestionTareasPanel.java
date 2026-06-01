@@ -4,6 +4,7 @@ import sigma.app.GestorSigma;
 import sigma.modelo.*;
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 
 public class GestionTareasPanel extends JPanel {
     public GestionTareasPanel(GestorSigma controlador) {
@@ -34,7 +35,7 @@ public class GestionTareasPanel extends JPanel {
                     .findFirst().orElse(null);
 
             if(resp != null && metaSeleccionada != null) {
-                Tarea t = new Tarea(titulo, "Desc", resp, EstadoTarea.PENDIENTE);
+                Tarea t = new Tarea(titulo, "Desc", resp, LocalDate.now(), LocalDate.now().plusDays(7), EstadoTarea.PENDIENTE);
                 controlador.agregarTareaAMeta(metaSeleccionada, t);
                 JOptionPane.showMessageDialog(this, "Tarea agregada");
             }
