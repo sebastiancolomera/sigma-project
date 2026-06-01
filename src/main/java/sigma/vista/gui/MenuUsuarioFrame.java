@@ -13,7 +13,7 @@ public class MenuUsuarioFrame extends JFrame {
         this.controlador = controlador;
         this.usuarioActual = u;
         setTitle("SIGMA - Menú Usuario");
-        setSize(600, 400);
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(5, 1, 10, 10));
 
@@ -21,7 +21,7 @@ public class MenuUsuarioFrame extends JFrame {
         JButton btnCambiarEstado = new JButton("Cambiar estado de tarea");
         btnCambiarEstado.addActionListener(e -> {
             JDialog dialog = new JDialog(this, "Cambiar Estado", true);
-            dialog.add(new CambiarEstadoPanel(controlador, usuarioActual));
+            dialog.add(new CambiarEstadoPanel(this.controlador, usuarioActual));
             dialog.pack();
             dialog.setVisible(true);
         });
@@ -29,7 +29,7 @@ public class MenuUsuarioFrame extends JFrame {
         JButton btnCerrar = new JButton("Cerrar Sesión");
         btnCerrar.addActionListener(e -> {
             this.dispose();
-            new LoginFrame(controlador).setVisible(true);
+            new LoginFrame(this.controlador).setVisible(true);
         });
 
         add(btnMisTareas);

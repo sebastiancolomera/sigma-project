@@ -11,8 +11,9 @@ public class LoginFrame extends JFrame {
     private JPasswordField txtPassword;
 
     public LoginFrame(GestorSigma controlador) {
+        this.controlador = controlador;
         setTitle("SIGMA - INICIAR SESIÓN");
-        setSize(400, 300);
+        setSize(300, 200);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridLayout(3, 2, 10, 10));

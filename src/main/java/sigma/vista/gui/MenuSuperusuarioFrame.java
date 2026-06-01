@@ -11,7 +11,7 @@ public class MenuSuperusuarioFrame extends JFrame {
     public MenuSuperusuarioFrame(GestorSigma controlador) {
         this.controlador = controlador;
         setTitle("SIGMA - Menú Superusuario");
-        setSize(600, 400);
+        setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(5, 1, 10, 10));
 
@@ -24,12 +24,12 @@ public class MenuSuperusuarioFrame extends JFrame {
         btnReset.addActionListener(e -> {
             int r = JOptionPane.showConfirmDialog(this, "¿Estás seguro de eliminar todos los " +
                     "datos de registro?", "Confirmar", JOptionPane.YES_NO_OPTION);
-            if (r == JOptionPane.YES_OPTION) controlador.resetearSistema();
+            if (r == JOptionPane.YES_OPTION) this.controlador.resetearSistema();
         });
 
         btnCerrar.addActionListener(e -> {
             this.dispose();
-            new LoginFrame(controlador).setVisible(true);
+            new LoginFrame(this.controlador).setVisible(true);
         });
 
         add(btnRegistrar);
