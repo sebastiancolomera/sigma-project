@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import sigma.modelo.Meta;
 import sigma.modelo.Usuario;
 import sigma.modelo.EstadoTarea;
+import sigma.modelo.RolUsuario;
 
 import java.io.*;
 import java.lang.reflect.Type;
