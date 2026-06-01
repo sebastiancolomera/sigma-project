@@ -1,87 +1,106 @@
 package sigma.persistencia;
 
-import sigma.modelo.Meta;
-import sigma.modelo.Usuario;
-
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
+import sigma.modelo.Meta;
+import sigma.modelo.Usuario;
+import sigma.modelo.EstadoTarea;
+import sigma.modelo.RolUsuario;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 public class GestorJSON {
 
-    private Gson gson;
+    private final Gson gson;
 
     public GestorJSON() {
-        this.gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDate.class, new JsonSerializer<LocalDate>() {
-                    @Override
-                    public JsonElement serialize(LocalDate date, Type typeOfSrc, JsonSerializationContext context) {
-                        return new JsonPrimitive(date.toString());
-                    }
-                })
-                .registerTypeAdapter(LocalDate.class, new JsonDeserializer<LocalDate>() {
-                    @Override
-                    public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        return LocalDate.parse(json.getAsString());
-                    }
-                })
-                .setPrettyPrinting()
-                .create();
-    }
+        GsonBuilder builder = new GsonBuilder();
+        builder.setPrettyPrinting();
 
-    public void guardarMetas(ArrayList<Meta> metas, String rutaArchivo) {
-        try (FileWriter writer = new FileWriter(rutaArchivo)) {
-            gson.toJson(metas, writer);
-            System.out.println("Las Metas y Tareas guardadas correctamente en " + rutaArchivo);
-        } catch (IOException e) {
-            System.out.println("No se pudo guardar el archivo de metas: " + e.getMessage());
-        }
-    }
+        builder.registerTypeAdapter(LocalDate.class,
+                (JsonSerializer<LocalDate>) (src, type, ctx) ->
+                        new JsonPrimitive(src.toString()));
 
-    public ArrayList<Meta> cargarMetas(String rutaArchivo) {
-        try (FileReader reader = new FileReader(rutaArchivo)) {
-            Type tipoListaMetas = new TypeToken<ArrayList<Meta>>() {}.getType();
-            ArrayList<Meta> metasCargadas = gson.fromJson(reader, tipoListaMetas);
+        builder.registerTypeAdapter(LocalDate.class,
+                (JsonDeserializer<LocalDate>) (json, type, ctx) ->
+                        LocalDate.parse(json.getAsString()));
 
-            if (metasCargadas == null) {
-                return new ArrayList<>();
-            }
-            return metasCargadas;
+        builder.registerTypeAdapter(RolUsuario.class,
+                (JsonDeserializer<RolUsuario>) (json, type, ctx) -> {
+                    String val = json.getAsString().toUpperCase().trim();
+                    return RolUsuario.valueOf(val);
+                });
 
-        } catch (IOException e) {
-            System.out.println("[Aviso] No se encontró el archivo de metas o está vacío. Se creará uno nuevo al guardar.");
-            return new ArrayList<>();
-        }
+        builder.registerTypeAdapter(EstadoTarea.class,
+                (JsonDeserializer<EstadoTarea>) (json, type, ctx) -> {
+                    String val = json.getAsString().toUpperCase().trim();
+                    return EstadoTarea.valueOf(val);
+                });
+
+        this.gson = builder.create();
     }
 
     public void guardarUsuarios(ArrayList<Usuario> usuarios, String rutaArchivo) {
-        try (FileWriter writer = new FileWriter(rutaArchivo)) {
-            gson.toJson(usuarios, writer);
-            System.out.println("Los Usuarios fueron guardados correctamente en " + rutaArchivo);
+        try {
+            crearDirectorioSiNoExiste(rutaArchivo);
+            try (Writer writer = new FileWriter(rutaArchivo)) {
+                gson.toJson(usuarios, writer);
+            }
         } catch (IOException e) {
-            System.out.println("No se pudo guardar el archivo de usuarios: " + e.getMessage());
+            System.err.println("[GestorJSON] Error al guardar usuarios: " + e.getMessage());
         }
     }
 
     public ArrayList<Usuario> cargarUsuarios(String rutaArchivo) {
-        try (FileReader reader = new FileReader(rutaArchivo)) {
-            Type tipoListaUsuarios = new TypeToken<ArrayList<Usuario>>() {}.getType();
-            ArrayList<Usuario> usuariosCargados = gson.fromJson(reader, tipoListaUsuarios);
-
-            if (usuariosCargados == null) {
-                return new ArrayList<>();
-            }
-            return usuariosCargados;
-
-        } catch (IOException e) {
-            System.out.println("[Aviso] No se encontró el archivo de usuarios. Se creará uno nuevo al guardar.");
+        File archivo = new File(rutaArchivo);
+        if (!archivo.exists()) {
+            System.out.println("[GestorJSON] Archivo de usuarios no encontrado, se inicia con lista vacía.");
             return new ArrayList<>();
+        }
+        try (Reader reader = new FileReader(archivo)) {
+            Type listType = new TypeToken<ArrayList<Usuario>>() {}.getType();
+            ArrayList<Usuario> resultado = gson.fromJson(reader, listType);
+            return resultado != null ? resultado : new ArrayList<>();
+        } catch (IOException e) {
+            System.err.println("[GestorJSON] Error al cargar usuarios: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public void guardarMetas(ArrayList<Meta> metas, String rutaArchivo) {
+        try {
+            crearDirectorioSiNoExiste(rutaArchivo);
+            try (Writer writer = new FileWriter(rutaArchivo)) {
+                gson.toJson(metas, writer);
+            }
+        } catch (IOException e) {
+            System.err.println("[GestorJSON] Error al guardar metas: " + e.getMessage());
+        }
+    }
+
+    public ArrayList<Meta> cargarMetas(String rutaArchivo) {
+        File archivo = new File(rutaArchivo);
+        if (!archivo.exists()) {
+            System.out.println("[GestorJSON] Archivo de metas no encontrado, se inicia con lista vacía.");
+            return new ArrayList<>();
+        }
+        try (Reader reader = new FileReader(archivo)) {
+            Type listType = new TypeToken<ArrayList<Meta>>() {}.getType();
+            ArrayList<Meta> resultado = gson.fromJson(reader, listType);
+            return resultado != null ? resultado : new ArrayList<>();
+        } catch (IOException e) {
+            System.err.println("[GestorJSON] Error al cargar metas: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private void crearDirectorioSiNoExiste(String rutaArchivo) {
+        File dir = new File(rutaArchivo).getParentFile();
+        if (dir != null && !dir.exists()) {
+            dir.mkdirs();
         }
     }
 }
