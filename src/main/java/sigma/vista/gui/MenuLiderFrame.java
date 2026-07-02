@@ -22,7 +22,7 @@ public class MenuLiderFrame extends JFrame {
 
 
         btnCrearMeta.addActionListener(e -> {
-            String nombre = JOptionPane.showInputDialog("Nombre del meta :");
+            String nombre = JOptionPane.showInputDialog("Nombre de la meta :");
             if (nombre != null) this.controlador.agregarMeta(nombre);
         });
 
