@@ -37,11 +37,14 @@ public class MenuLiderFrame extends JFrame {
             StringBuilder sb = new StringBuilder();
             controlador.getMetas().forEach(m -> {
                 sb.append("Meta: ").append(m.getNombre()).append("\n");
-                m.getTareas().forEach(t ->
-                        sb.append("  - ").append(t.getTitulo())
-                                .append(" [").append(t.getEstado()).append("]")
-                                .append(" → ").append(t.getAsignado().getNombre()).append("\n")
-                );
+                m.getTareas().forEach(t -> {
+                    String nombreAsignado = (t.getAsignado() != null)
+                            ? t.getAsignado().getNombre()
+                            : "Sin asignar";
+                    sb.append(" - ").append(t.getTitulo())
+                            .append(" [").append(t.getEstado()).append("]")
+                            .append(" → ").append(nombreAsignado).append("\n");
+                });
             });
             String contenido = sb.isEmpty() ? "No hay tareas registradas." : sb.toString();
             JOptionPane.showMessageDialog(this, contenido, "Tareas", JOptionPane.INFORMATION_MESSAGE);
