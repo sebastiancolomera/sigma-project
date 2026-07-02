@@ -27,8 +27,11 @@ public class GestorSigma {
     }
 
     public void guardarDatos() {
-        gestorJSON.guardarUsuarios(new ArrayList<>(usuarios), SigmaConfig.RUTA_USUARIOS);
-        gestorJSON.guardarMetas(new ArrayList<>(metas),       SigmaConfig.RUTA_METAS);
+        boolean okUsuarios = gestorJSON.guardarUsuarios(new ArrayList<>(usuarios), SigmaConfig.RUTA_USUARIOS);
+        boolean okMetas    = gestorJSON.guardarMetas(new ArrayList<>(metas), SigmaConfig.RUTA_METAS);
+        if (!okUsuarios || !okMetas) {
+            System.err.println("ADVERTENCIA: no se pudo guardar todos los datos.");
+        }
     }
 
     public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
