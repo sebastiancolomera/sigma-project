@@ -43,21 +43,23 @@ public class GestorJSON {
         this.gson = builder.create();
     }
 
-    public void guardarUsuarios(ArrayList<Usuario> usuarios, String rutaArchivo) {
+    public boolean guardarUsuarios(ArrayList<Usuario> usuarios, String rutaArchivo) {
         try {
             crearDirectorioSiNoExiste(rutaArchivo);
             try (Writer writer = new FileWriter(rutaArchivo)) {
                 gson.toJson(usuarios, writer);
             }
+            return true;
         } catch (IOException e) {
-            System.err.println("[GestorJSON] Error al guardar usuarios: " + e.getMessage());
+            System.err.println("Error al guardar usuarios: " + e.getMessage());
+            return false;
         }
     }
 
     public ArrayList<Usuario> cargarUsuarios(String rutaArchivo) {
         File archivo = new File(rutaArchivo);
         if (!archivo.exists()) {
-            System.out.println("[GestorJSON] Archivo de usuarios no encontrado, se inicia con lista vacía.");
+            System.out.println("Archivo de usuarios no encontrado, se inicia con lista vacía.");
             return new ArrayList<>();
         }
         try (Reader reader = new FileReader(archivo)) {
@@ -65,26 +67,28 @@ public class GestorJSON {
             ArrayList<Usuario> resultado = gson.fromJson(reader, listType);
             return resultado != null ? resultado : new ArrayList<>();
         } catch (IOException e) {
-            System.err.println("[GestorJSON] Error al cargar usuarios: " + e.getMessage());
+            System.err.println("Error al cargar usuarios: " + e.getMessage());
             return new ArrayList<>();
         }
     }
 
-    public void guardarMetas(ArrayList<Meta> metas, String rutaArchivo) {
+    public boolean guardarMetas(ArrayList<Meta> metas, String rutaArchivo) {
         try {
             crearDirectorioSiNoExiste(rutaArchivo);
             try (Writer writer = new FileWriter(rutaArchivo)) {
                 gson.toJson(metas, writer);
             }
+            return true;
         } catch (IOException e) {
             System.err.println("[GestorJSON] Error al guardar metas: " + e.getMessage());
+            return false;
         }
     }
 
     public ArrayList<Meta> cargarMetas(String rutaArchivo) {
         File archivo = new File(rutaArchivo);
         if (!archivo.exists()) {
-            System.out.println("[GestorJSON] Archivo de metas no encontrado, se inicia con lista vacía.");
+            System.out.println("Archivo de metas no encontrado, se inicia con lista vacía.");
             return new ArrayList<>();
         }
         try (Reader reader = new FileReader(archivo)) {
@@ -92,7 +96,7 @@ public class GestorJSON {
             ArrayList<Meta> resultado = gson.fromJson(reader, listType);
             return resultado != null ? resultado : new ArrayList<>();
         } catch (IOException e) {
-            System.err.println("[GestorJSON] Error al cargar metas: " + e.getMessage());
+            System.err.println("Error al cargar metas: " + e.getMessage());
             return new ArrayList<>();
         }
     }
