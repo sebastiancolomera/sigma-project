@@ -1,6 +1,8 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
+import sigma.modelo.EstadoTarea;
+import sigma.modelo.Tarea;
 import javax.swing.*;
 import java.awt.*;
 
