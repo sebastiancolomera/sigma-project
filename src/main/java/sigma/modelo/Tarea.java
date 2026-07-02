@@ -42,8 +42,8 @@ public class Tarea {
         return asignado;
     }
 
-    public void setAsignado(Usuario asistente) {
-        this.asignado = asistente;
+    public void setAsignado(Usuario asignado) {
+        this.asignado = asignado;
     }
 
     public LocalDate getFechaInicio() {
