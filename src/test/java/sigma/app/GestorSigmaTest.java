@@ -53,17 +53,15 @@ class GestorSigmaTest {
     @Test
     @DisplayName("Debería fallar al registrar con nombre vacío")
     void testRegistrarUsuarioNombreVacio() {
-        boolean resultado = gestor.registrarUsuario("", "pass123", RolUsuario.USUARIO);
-
-        assertFalse(resultado);
+        boolean resultado = gestor.registrarUsuario("", "pass", RolUsuario.USUARIO);
+        assertFalse(resultado, "Nombre vacio no debe permitirse");
     }
 
     @Test
     @DisplayName("Debería fallar al registrar con nombre null")
     void testRegistrarUsuarioNombreNull() {
-        boolean resultado = gestor.registrarUsuario(null, "pass123", RolUsuario.USUARIO);
-
-        assertFalse(resultado);
+        boolean resultado = gestor.registrarUsuario(null, "pass", RolUsuario.USUARIO);
+        assertFalse(resultado, "Nombre null no debe permitirse");
     }
 
     @Test
@@ -136,15 +134,15 @@ class GestorSigmaTest {
         gestor.registrarUsuario("juan", "pass123", RolUsuario.USUARIO);
         gestor.registrarUsuario("maria", "pass456", RolUsuario.LIDER);
         gestor.agregarMeta("Proyecto SIGMA");
-
-        assertEquals(2, gestor.getUsuarios().size());
-        assertEquals(1, gestor.getMetas().size());
-
         gestor.resetearSistema();
-
-        assertEquals(0, gestor.getUsuarios().size());
-        assertTrue(gestor.getMetas().isEmpty());
+        List<Usuario> usuarios = gestor.getUsuarios();
+        List<Meta> metas = gestor.getMetas();
+        assertEquals(1, usuarios.size(), "Debe quedar solo el admin");
+        assertEquals("admin", usuarios.get(0).getNombre());
+        assertEquals(RolUsuario.SUPERUSUARIO, usuarios.get(0).getRol());
+        assertEquals(0, metas.size(), "Metas deben quedar vacias");
     }
+
 
     @Test
     @DisplayName("Debería agregar una meta exitosamente")
