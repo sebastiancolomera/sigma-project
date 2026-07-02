@@ -35,6 +35,9 @@ public class GestorSigma {
     }
 
     public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
+        if (nombre == null || nombre.trim().isEmpty()) return false;
+        if (contrasena == null || contrasena.isEmpty()) return false;
+        if (rol == null) return false;
         for (Usuario u : usuarios) {
             if (u.getNombre().equals(nombre)) return false;
         }
@@ -94,6 +97,7 @@ public class GestorSigma {
     }
 
     public boolean agregarMeta(String nombre) {
+        if (nombre == null || nombre.trim().isEmpty()) return false;
         if (buscarMeta(nombre) != null) return false;
         metas.add(new Meta(nombre));
         guardarDatos();
@@ -107,6 +111,7 @@ public class GestorSigma {
     }
 
     public boolean agregarTareaAMeta(String nombreMeta, Tarea tarea) {
+        if (tarea == null || tarea.getTitulo() == null || tarea.getTitulo().trim().isEmpty()) return false;
         Meta meta = buscarMeta(nombreMeta);
         if (meta != null) {
             meta.agregarTarea(tarea);
@@ -133,7 +138,8 @@ public class GestorSigma {
         List<Tarea> tareasUsuario = new ArrayList<>();
         for (Meta meta : metas) {
             for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getAsignado().getNombre().equals(u.getNombre())) {
+                if (tarea.getAsignado() != null &&
+                        tarea.getAsignado().getNombre().equals(u.getNombre())) {
                     tareasUsuario.add(tarea);
                 }
             }
