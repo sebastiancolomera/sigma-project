@@ -3,17 +3,26 @@ package sigma.vista.gui;
 import sigma.app.GestorSigma;
 import sigma.modelo.EstadoTarea;
 import sigma.modelo.Usuario;
+import sigma.modelo.Tarea;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class CambiarEstadoPanel extends JPanel {
+
+    private final GestorSigma controlador;
+    private final Usuario usuario;
+    private final JComboBox<String> cmbTareas;
+    private final JComboBox<EstadoTarea> cmbEstado;
+
     public CambiarEstadoPanel(GestorSigma controlador, Usuario u) {
+        this.controlador = controlador;
+        this.usuario = u;
+
         setLayout(new GridLayout(3, 2, 5, 5));
 
-        JComboBox<String> cmbTareas = new JComboBox<>();
-        controlador.getTareasDeUsuario(u).forEach(t -> cmbTareas.addItem(t.getTitulo()));
-
-        JComboBox<EstadoTarea>  cmbEstado = new JComboBox<>(EstadoTarea.values());
+        cmbTareas = new JComboBox<>();
+        cmbEstado = new JComboBox<>(EstadoTarea.values());
 
         add(new JLabel("Seleccionar Tarea:"));
         add(cmbTareas);
@@ -24,11 +33,21 @@ public class CambiarEstadoPanel extends JPanel {
         btnActualizar.addActionListener(e -> {
             String titulo = (String) cmbTareas.getSelectedItem();
             EstadoTarea nuevoEstado = (EstadoTarea) cmbEstado.getSelectedItem();
-            if (titulo != null) {
+            if (titulo != null && nuevoEstado != null) {
                 controlador.cambiarEstadoTarea(titulo, nuevoEstado);
                 JOptionPane.showMessageDialog(this, "Estado Actualizado");
+                cargarTareas();
             }
         });
+
         add(btnActualizar);
+        cargarTareas();
+    }
+
+    private void cargarTareas() {
+        cmbTareas.removeAllItems();
+        for (Tarea t : controlador.getTareasDeUsuario(usuario)) {
+            cmbTareas.addItem(t.getTitulo());
+        }
     }
 }
