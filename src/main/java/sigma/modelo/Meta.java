@@ -53,6 +53,6 @@ public class Meta {
                 completadas++;
             }
         }
-        return (double) completadas / tareas.size() * 100.0;
+        return Math.round((double) completadas / tareas.size() * 100.0);
     }
 }
