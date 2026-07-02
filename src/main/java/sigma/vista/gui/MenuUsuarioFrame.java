@@ -23,10 +23,11 @@ public class MenuUsuarioFrame extends JFrame {
 
         btnMisTareas.addActionListener(e -> {
             StringBuilder sb = new StringBuilder();
-            controlador.getTareasDeUsuario(usuarioActual).forEach(t ->
-                    sb.append("- ").append(t.getTitulo())
-                            .append(" [").append(t.getEstado()).append("]").append("\n")
-            );
+            controlador.getTareasDeUsuario(usuarioActual).forEach(t -> {
+                String titulo = (t.getTitulo() != null) ? t.getTitulo() : "Sin titulo";
+                sb.append("- ").append(titulo)
+                        .append(" [").append(t.getEstado()).append("]").append("\n");
+            });
             String contenido = sb.isEmpty() ? "No tienes tareas asignadas." : sb.toString();
             JOptionPane.showMessageDialog(this, contenido, "Mis Tareas", JOptionPane.INFORMATION_MESSAGE);
         });
