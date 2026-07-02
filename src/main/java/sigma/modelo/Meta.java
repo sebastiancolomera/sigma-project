@@ -30,7 +30,7 @@ public class Meta {
     }
 
     public List<Tarea> getTareas() {
-        return tareas;
+        return new ArrayList<>(tareas);
     }
 
     public void setTareas(ArrayList<Tarea> tareas) {
