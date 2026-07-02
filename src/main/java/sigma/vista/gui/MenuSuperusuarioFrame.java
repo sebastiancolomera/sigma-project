@@ -18,7 +18,7 @@ public class MenuSuperusuarioFrame extends JFrame {
         JButton btnRegistrar = new JButton("Registrar Usuario");
         JButton btnEliminar = new JButton("Eliminar Usuario");
         JButton btnCambiarRol = new JButton("Cambiar Rol");
-        JButton btnReset = new JButton("Eliminar Datos de Registro");
+        JButton btnReset = new JButton("Resetear Sistema");
         JButton btnCerrar = new JButton("Cerrar sesión");
 
         btnRegistrar.addActionListener(e -> {
@@ -53,9 +53,9 @@ public class MenuSuperusuarioFrame extends JFrame {
         });
 
         btnReset.addActionListener(e -> {
-            int r = JOptionPane.showConfirmDialog(this, "¿Estás seguro de eliminar todos los " +
-                    "datos de registro?", "Confirmar", JOptionPane.YES_NO_OPTION);
-            if (r == JOptionPane.YES_OPTION) this.controlador.resetearSistema();
+            int r = JOptionPane.showConfirmDialog(this,
+                    "¿Estás seguro de que deseas resetear el sistema? Se eliminarán todos los usuarios y metas.",
+                    "Confirmar Reseteo", JOptionPane.YES_NO_OPTION);            if (r == JOptionPane.YES_OPTION) this.controlador.resetearSistema();
         });
 
         btnCerrar.addActionListener(e -> {
