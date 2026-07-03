@@ -20,7 +20,7 @@ public class GestionTareasPanel extends JPanel {
         controlador.getMetas().forEach(m -> cmbMetas.addItem(m.getNombre()));
 
         JComboBox<String> cmbUsuarios = new JComboBox<>();
-        controlador.getUsuarios().forEach(u -> cmbUsuarios.addItem(u.getNombre()));
+        controlador.getUsuariosSinSuperusuario().forEach(u -> cmbUsuarios.addItem(u.getNombre()));
 
         add(new JLabel("Título de Tarea:"));
         add(txtTitulo);
