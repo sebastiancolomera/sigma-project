@@ -76,6 +76,12 @@ public class GestorSigma {
         return new ArrayList<>(usuarios);
     }
 
+    public List<Usuario> getUsuariosSinSuperusuario() {
+        return getUsuarios().stream()
+                .filter(u -> !u.esSuperusuario())
+                .collect(java.util.stream.Collectors.toList());
+    }
+
     public List<Meta> getMetas() {
         return new ArrayList<>(metas);
     }
