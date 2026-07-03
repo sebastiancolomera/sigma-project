@@ -9,11 +9,14 @@ public class Main {
     public static void main(String[] args) {
 
         GestorSigma controlador = new GestorSigma();
-
         controlador.cargarDatos();
 
         if (controlador.getUsuarios().isEmpty()) {
-            controlador.registrarUsuario("admin", "admin123", RolUsuario.SUPERUSUARIO);
+            controlador.registrarUsuario(
+                    SigmaConfig.ADMIN_NOMBRE,
+                    SigmaConfig.ADMIN_PASSWORD,
+                    RolUsuario.SUPERUSUARIO
+            );
         }
 
         SwingUtilities.invokeLater(() -> {
