@@ -136,7 +136,7 @@ Al iniciar por primera vez, el sistema crea automáticamente un usuario administ
  
 | Usuario | Contraseña | Rol |
 |---|---|---|
-| `admin` | `admin123` | SUPERUSUARIO |
+| `admin` | `gatomiau` | SUPERUSUARIO |
  
 ---
  
