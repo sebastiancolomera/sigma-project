@@ -164,5 +164,5 @@ Los datos se almacenan en archivos JSON dentro del directorio `data/`:
  
 ## Licencia
  
-Proyecto académico sin licencia comercial.  
+Proyecto académico sin licencia comercial
 Uso exclusivo para evaluación en el curso ICC490-1 — UFRO.
