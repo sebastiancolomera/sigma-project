@@ -77,4 +77,46 @@ class GestorSigmaTest {
         assertDoesNotThrow(gestor::getMetas);
         assertDoesNotThrow(() -> gestor.autenticarUsuario("inexistente", "x"));
     }
+
+    @Test
+    @DisplayName("actualizarFechasTarea a través de la fachada actualiza las fechas correctamente")
+    void testActualizarFechasTareaExitosaViaFachada() {
+        gestor.agregarMeta("Meta X");
+        Tarea tarea = new Tarea("Tarea 1", "Descripción", null,
+                LocalDate.of(2026, 5, 1), LocalDate.of(2026, 5, 10), EstadoTarea.PENDIENTE);
+        gestor.agregarTareaAMeta("Meta X", tarea);
+
+        LocalDate nuevaInicio = LocalDate.of(2026, 6, 1);
+        LocalDate nuevaTermino = LocalDate.of(2026, 6, 15);
+
+        assertTrue(gestor.actualizarFechasTarea("Tarea 1", nuevaInicio, nuevaTermino));
+
+        Tarea actualizada = gestor.getMetas().get(0).getTareas().get(0);
+        assertEquals(nuevaInicio, actualizada.getFechaInicio());
+        assertEquals(nuevaTermino, actualizada.getFechaTermino());
+    }
+
+    @Test
+    @DisplayName("actualizarFechasTarea a través de la fachada retorna false para una tarea inexistente")
+    void testActualizarFechasTareaInexistenteViaFachada() {
+        assertFalse(gestor.actualizarFechasTarea("Fantasma",
+                LocalDate.now(), LocalDate.now().plusDays(1)));
+    }
+
+    @Test
+    @DisplayName("actualizarFechasTarea a través de la fachada rechaza fecha de término anterior a la de inicio")
+    void testActualizarFechasTareaFechaInvalidaViaFachada() {
+        gestor.agregarMeta("Meta Y");
+        Tarea tarea = new Tarea("Tarea 2", "Descripción", null,
+                LocalDate.of(2026, 5, 1), LocalDate.of(2026, 5, 10), EstadoTarea.PENDIENTE);
+        gestor.agregarTareaAMeta("Meta Y", tarea);
+
+        assertFalse(gestor.actualizarFechasTarea("Tarea 2",
+                LocalDate.of(2026, 6, 15), LocalDate.of(2026, 6, 1)));
+
+        Tarea sinCambios = gestor.getMetas().get(0).getTareas().get(0);
+        assertEquals(LocalDate.of(2026, 5, 1), sinCambios.getFechaInicio());
+        assertEquals(LocalDate.of(2026, 5, 10), sinCambios.getFechaTermino());
+    }
+
 }
