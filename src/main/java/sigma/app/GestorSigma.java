@@ -3,147 +3,91 @@ package sigma.app;
 import sigma.modelo.*;
 import sigma.persistencia.GestorJSON;
 
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.List;
 
 public class GestorSigma {
 
-    private List<Usuario> usuarios;
-    private List<Meta> metas;
-    private final GestorJSON gestorJSON;
+    private final ServicioUsuarios servicioUsuarios;
+    private final ServicioMetas servicioMetas;
+
+    public GestorSigma(String rutaUsuarios, String rutaMetas) {
+        GestorJSON gestorJSON = new GestorJSON();
+        this.servicioUsuarios = new ServicioUsuarios(gestorJSON, rutaUsuarios);
+        this.servicioMetas = new ServicioMetas(gestorJSON, rutaMetas);
+    }
 
     public GestorSigma() {
-        this.usuarios   = new ArrayList<>();
-        this.metas      = new ArrayList<>();
-        this.gestorJSON = new GestorJSON();
+        this(SigmaConfig.RUTA_USUARIOS, SigmaConfig.RUTA_METAS);
     }
 
     public void cargarDatos() {
-        List<Usuario> usuariosCargados = gestorJSON.cargarUsuarios(SigmaConfig.RUTA_USUARIOS);
-        List<Meta>    metasCargadas    = gestorJSON.cargarMetas(SigmaConfig.RUTA_METAS);
-
-        if (usuariosCargados != null) this.usuarios.addAll(usuariosCargados);
-        if (metasCargadas    != null) this.metas.addAll(metasCargadas);
+        servicioUsuarios.cargar();
+        servicioMetas.cargar();
     }
 
     public void guardarDatos() {
-        boolean okUsuarios = gestorJSON.guardarUsuarios(new ArrayList<>(usuarios), SigmaConfig.RUTA_USUARIOS);
-        boolean okMetas    = gestorJSON.guardarMetas(new ArrayList<>(metas), SigmaConfig.RUTA_METAS);
-        if (!okUsuarios || !okMetas) {
-            System.err.println("ADVERTENCIA: no se pudo guardar todos los datos.");
-        }
-    }
-
-    public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
-        if (nombre == null || nombre.trim().isEmpty()) return false;
-        if (contrasena == null || contrasena.isEmpty()) return false;
-        if (rol == null) return false;
-        for (Usuario u : usuarios) {
-            if (u.getNombre().equals(nombre)) return false;
-        }
-        usuarios.add(new Usuario(nombre, contrasena, rol));
-        guardarDatos();
-        return true;
-    }
-
-    public Usuario autenticarUsuario(String nombre, String contrasena) {
-        for (Usuario u : usuarios) {
-            if (u.getNombre().equals(nombre) && u.getContrasena().equals(contrasena)) {
-                return u;
-            }
-        }
-        return null;
-    }
-
-    public boolean actualizarRol(String nombreUsuario, RolUsuario nuevoRol) {
-        for (Usuario u : usuarios) {
-            if (u.getNombre().equalsIgnoreCase(nombreUsuario)) {
-                u.setRol(nuevoRol);
-                guardarDatos();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean eliminarUsuario(String nombreUsuario) {
-        boolean eliminado = usuarios.removeIf(u -> u.getNombre().equals(nombreUsuario));
-        if (eliminado) guardarDatos();
-        return eliminado;
-    }
-
-    public List<Usuario> getUsuarios() {
-        return new ArrayList<>(usuarios);
-    }
-
-    public List<Meta> getMetas() {
-        return new ArrayList<>(metas);
+        servicioUsuarios.guardar();
+        servicioMetas.guardar();
     }
 
     public void resetearSistema() {
-        usuarios.clear();
-        metas.clear();
-        usuarios.add(new Usuario("admin", "admin123", RolUsuario.SUPERUSUARIO));
-        guardarDatos();
+        servicioUsuarios.resetear();
+        servicioMetas.resetear();
+    }
+
+    public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
+        return servicioUsuarios.registrarUsuario(nombre, contrasena, rol);
+    }
+
+    public Usuario autenticarUsuario(String nombre, String contrasena) {
+        return servicioUsuarios.autenticarUsuario(nombre, contrasena);
+    }
+
+    public boolean actualizarRol(String nombreUsuario, RolUsuario nuevoRol) {
+        return servicioUsuarios.actualizarRol(nombreUsuario, nuevoRol);
+    }
+
+    public boolean eliminarUsuario(String nombreUsuario) {
+        return servicioUsuarios.eliminarUsuario(nombreUsuario);
+    }
+
+    public List<Usuario> getUsuarios() {
+        return servicioUsuarios.getUsuarios();
+    }
+
+    public List<Usuario> getUsuariosSinSuperusuario() {
+        return servicioUsuarios.getUsuariosSinSuperusuario();
     }
 
     public Meta buscarMeta(String nombre) {
-        for (Meta m : metas) {
-            if (m.getNombre().equals(nombre)) {
-                return m;
-            }
-        }
-        return null;
+        return servicioMetas.buscarMeta(nombre);
     }
 
     public boolean agregarMeta(String nombre) {
-        if (nombre == null || nombre.trim().isEmpty()) return false;
-        if (buscarMeta(nombre) != null) return false;
-        metas.add(new Meta(nombre));
-        guardarDatos();
-        return true;
+        return servicioMetas.agregarMeta(nombre);
     }
 
     public boolean eliminarMeta(String nombre) {
-        boolean eliminada = metas.removeIf(m -> m.getNombre().equals(nombre));
-        if (eliminada) guardarDatos();
-        return eliminada;
+        return servicioMetas.eliminarMeta(nombre);
     }
 
     public boolean agregarTareaAMeta(String nombreMeta, Tarea tarea) {
-        if (tarea == null || tarea.getTitulo() == null || tarea.getTitulo().trim().isEmpty()) return false;
-        Meta meta = buscarMeta(nombreMeta);
-        if (meta != null) {
-            meta.agregarTarea(tarea);
-            guardarDatos();
-            return true;
-        }
-        return false;
+        return servicioMetas.agregarTareaAMeta(nombreMeta, tarea);
     }
 
     public boolean cambiarEstadoTarea(String titulo, EstadoTarea nuevo) {
-        for (Meta meta : metas) {
-            for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getTitulo().equals(titulo)) {
-                    tarea.setEstado(nuevo);
-                    guardarDatos();
-                    return true;
-                }
-            }
-        }
-        return false;
+        return servicioMetas.cambiarEstadoTarea(titulo, nuevo);
+    }
+
+    public boolean actualizarFechasTarea(String titulo, LocalDate inicio, LocalDate termino) {
+        return servicioMetas.actualizarFechasTarea(titulo, inicio, termino);
     }
 
     public List<Tarea> getTareasDeUsuario(Usuario u) {
-        List<Tarea> tareasUsuario = new ArrayList<>();
-        for (Meta meta : metas) {
-            for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getAsignado() != null &&
-                        tarea.getAsignado().getNombre().equals(u.getNombre())) {
-                    tareasUsuario.add(tarea);
-                }
-            }
-        }
-        return tareasUsuario;
+        return servicioMetas.getTareasDeUsuario(u);
+    }
+    public List<Meta> getMetas() {
+        return servicioMetas.getMetas();
     }
 }
