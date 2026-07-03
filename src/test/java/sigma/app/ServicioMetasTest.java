@@ -191,4 +191,17 @@ class ServicioMetasTest {
 
         assertFalse(servicio.actualizarFechasTarea("Tarea 1", inicioInvalido, terminoInvalido));
     }
+
+    @Test
+    @DisplayName("Actualizar las fechas con parámetros nulos falla")
+    void testActualizarFechasTareaConNulls() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea 1", "Descripción", usuarioDePrueba,
+                LocalDate.now(), LocalDate.now().plusDays(5), EstadoTarea.PENDIENTE);
+        servicio.agregarTareaAMeta("Meta 1", tarea);
+
+        assertFalse(servicio.actualizarFechasTarea(null, LocalDate.now(), LocalDate.now().plusDays(1)));
+        assertFalse(servicio.actualizarFechasTarea("Tarea 1", null, LocalDate.now()));
+        assertFalse(servicio.actualizarFechasTarea("Tarea 1", LocalDate.now(), null));
+    }
 }
