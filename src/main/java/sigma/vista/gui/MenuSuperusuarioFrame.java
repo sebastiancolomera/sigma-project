@@ -2,11 +2,15 @@ package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
 import sigma.modelo.RolUsuario;
+import sigma.modelo.Usuario;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class MenuSuperusuarioFrame extends JFrame {
-    private GestorSigma controlador;
+
+    private final GestorSigma controlador;
 
     public MenuSuperusuarioFrame(GestorSigma controlador) {
         this.controlador = controlador;
@@ -35,27 +39,89 @@ public class MenuSuperusuarioFrame extends JFrame {
         });
 
         btnEliminar.addActionListener(e -> {
-            String nombre = JOptionPane.showInputDialog(this, "Nombre del usuario a eliminar:");
-            if (nombre == null) return;
-            boolean ok = controlador.eliminarUsuario(nombre);
-            JOptionPane.showMessageDialog(this, ok ? "Usuario eliminado." : "Usuario no encontrado.");
+            List<Usuario> usuarios = controlador.getUsuarios();
+            if (usuarios.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No hay usuarios registrados.");
+                return;
+            }
+
+            String[] opciones = usuarios.stream()
+                    .map(u -> u.getNombre() + " — " + u.getRol())
+                    .toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Seleccione el usuario a eliminar:",
+                    "Eliminar Usuario",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    opciones,
+                    opciones[0]
+            );
+
+            if (seleccion == null) return;
+
+            String nombre = seleccion.split(" — ")[0];
+            int confirmacion = JOptionPane.showConfirmDialog(
+                    this,
+                    "¿Está seguro de eliminar al usuario \"" + nombre + "\"?",
+                    "Confirmar Eliminación",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirmacion == JOptionPane.YES_OPTION) {
+                boolean ok = controlador.eliminarUsuario(nombre);
+                JOptionPane.showMessageDialog(this, ok ? "Usuario eliminado." : "Usuario no encontrado.");
+            }
         });
 
         btnCambiarRol.addActionListener(e -> {
-            String nombre = JOptionPane.showInputDialog(this, "Nombre del usuario:");
-            if (nombre == null) return;
+            List<Usuario> usuarios = controlador.getUsuarios();
+            if (usuarios.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No hay usuarios registrados.");
+                return;
+            }
+
+            String[] opciones = usuarios.stream()
+                    .map(u -> u.getNombre() + " — " + u.getRol())
+                    .toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Seleccione el usuario para cambiar su rol:",
+                    "Cambiar Rol",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    opciones,
+                    opciones[0]
+            );
+
+            if (seleccion == null) return;
+
+            String nombre = seleccion.split(" — ")[0];
+
             RolUsuario[] roles = RolUsuario.values();
-            RolUsuario rol = (RolUsuario) JOptionPane.showInputDialog(this, "Nuevo rol:",
-                    "Cambiar Rol", JOptionPane.QUESTION_MESSAGE, null, roles, roles[2]);
-            if (rol == null) return;
-            boolean ok = controlador.actualizarRol(nombre, rol);
+            RolUsuario nuevoRol = (RolUsuario) JOptionPane.showInputDialog(
+                    this,
+                    "Seleccione el nuevo rol para \"" + nombre + "\":",
+                    "Nuevo Rol",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    roles,
+                    roles[0]
+            );
+
+            if (nuevoRol == null) return;
+
+            boolean ok = controlador.actualizarRol(nombre, nuevoRol);
             JOptionPane.showMessageDialog(this, ok ? "Rol actualizado." : "Usuario no encontrado.");
         });
 
         btnReset.addActionListener(e -> {
             int r = JOptionPane.showConfirmDialog(this,
                     "¿Estás seguro de que deseas resetear el sistema? Se eliminarán todos los usuarios y metas.",
-                    "Confirmar Reseteo", JOptionPane.YES_NO_OPTION);            if (r == JOptionPane.YES_OPTION) this.controlador.resetearSistema();
+                    "Confirmar Reseteo", JOptionPane.YES_NO_OPTION);
+            if (r == JOptionPane.YES_OPTION) this.controlador.resetearSistema();
         });
 
         btnCerrar.addActionListener(e -> {
