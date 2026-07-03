@@ -27,7 +27,6 @@ public class ServicioUsuarios {
                 this.usuarios.addAll(u);
             }
         } catch (Exception e) {
-            // Primera ejecución o archivo inexistente: no debe romper el flujo.
             System.err.println("No se pudieron cargar los usuarios desde " + rutaUsuarios + ": " + e.getMessage());
         }
     }
