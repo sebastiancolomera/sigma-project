@@ -324,3 +324,18 @@ class GestorSigmaTest {
         assertEquals(0, gestor.getMetas().size());
     }
 }
+
+@Test
+@DisplayName("getUsuariosSinSuperusuario filtra correctamente al admin")
+void testGetUsuariosSinSuperusuarioFiltraAdmin() {
+    gestor.resetearSistema();
+    gestor.registrarUsuario("maria", "pass456", RolUsuario.LIDER);
+    gestor.registrarUsuario("juan", "pass789", RolUsuario.USUARIO);
+
+    List<Usuario> filtrados = gestor.getUsuariosSinSuperusuario();
+
+    assertEquals(2, filtrados.size());
+    assertTrue(filtrados.stream().noneMatch(Usuario::esSuperusuario));
+    assertTrue(filtrados.stream().anyMatch(u -> u.getNombre().equals("maria")));
+    assertTrue(filtrados.stream().anyMatch(u -> u.getNombre().equals("juan")));
+}
