@@ -11,9 +11,11 @@ import java.util.List;
 public class MenuSuperusuarioFrame extends JFrame {
 
     private final GestorSigma controlador;
+    private final Usuario usuarioActual;
 
-    public MenuSuperusuarioFrame(GestorSigma controlador) {
+    public MenuSuperusuarioFrame(GestorSigma controlador, Usuario usuarioActual) {
         this.controlador = controlador;
+        this.usuarioActual = usuarioActual;
         setTitle("SIGMA - Menú Superusuario");
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -62,6 +64,14 @@ public class MenuSuperusuarioFrame extends JFrame {
             if (seleccion == null) return;
 
             String nombre = seleccion.split(" — ")[0];
+
+            if (nombre.equalsIgnoreCase(usuarioActual.getNombre())) {
+                JOptionPane.showMessageDialog(this,
+                        "No puedes eliminarte a ti mismo.",
+                        "Acción no permitida", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             int confirmacion = JOptionPane.showConfirmDialog(
                     this,
                     "¿Está seguro de eliminar al usuario \"" + nombre + "\"?",
