@@ -79,19 +79,10 @@ public class MenuUsuarioFrame extends JFrame {
         });
 
         btnCerrar.addActionListener(e -> {
-            boolean ok = controlador.guardarDatos();
-            if (!ok) {
-                int resp = JOptionPane.showConfirmDialog(this,
-                        "No se pudieron guardar los datos correctamente.\n¿Deseas cerrar sesión de todas formas?",
-                        "Error al guardar",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
-                if (resp != JOptionPane.YES_OPTION) return;
-            }
+            controlador.guardarDatos();
             this.dispose();
             new LoginFrame(controlador).setVisible(true);
         });
-
         add(btnVerTareas);
         add(btnCambiarEstado);
         add(btnCerrar);
