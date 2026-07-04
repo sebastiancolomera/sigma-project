@@ -33,11 +33,12 @@ public class ServicioMetas {
         }
     }
 
-    public void guardar() {
+    public boolean guardar() {
         try {
-            gestorJSON.guardarMetas(new ArrayList<>(metas), rutaMetas);
+            return gestorJSON.guardarMetas(new ArrayList<>(metas), rutaMetas);
         } catch (Exception e) {
             System.err.println("No se pudieron guardar las metas en " + rutaMetas + ": " + e.getMessage());
+            return false;
         }
     }
 
@@ -121,6 +122,29 @@ public class ServicioMetas {
         meta.eliminarTarea(objetivo);
         guardar();
         return true;
+    }
+
+    /**
+     * Recorre todas las tareas y marca como FUERA_DE_PLAZO aquellas cuya
+     * fechaTermino ya pasó y cuyo estado no sea COMPLETADA.
+     * Se llama al iniciar la aplicación, después de cargar los datos.
+     */
+    public void actualizarEstadosVencidos() {
+        LocalDate hoy = LocalDate.now();
+        boolean huboCambios = false;
+
+        for (Meta meta : metas) {
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getFechaTermino() != null
+                        && hoy.isAfter(tarea.getFechaTermino())
+                        && tarea.getEstado() != EstadoTarea.COMPLETADA) {
+                    tarea.setEstado(EstadoTarea.FUERA_DE_PLAZO);
+                    huboCambios = true;
+                }
+            }
+        }
+
+        if (huboCambios) guardar();
     }
 
     public List<Tarea> getTareasDeUsuario(Usuario u) {
