@@ -96,7 +96,7 @@ public class MenuLiderFrame extends JFrame {
 
         btnEditarFechas.addActionListener(e -> {
             JDialog dialog = new JDialog(this, "Editar Fechas de Tarea", true);
-            dialog.add(new CambiarEstadoPanel(controlador, null));
+            dialog.add(new EditarFechasPanel(controlador, dialog));
             dialog.pack();
             dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);
@@ -163,7 +163,15 @@ public class MenuLiderFrame extends JFrame {
         });
 
         btnCerrar.addActionListener(e -> {
-            controlador.guardarDatos();
+            boolean ok = controlador.guardarDatos();
+            if (!ok) {
+                int resp = JOptionPane.showConfirmDialog(this,
+                        "No se pudieron guardar los datos correctamente.\n" +
+                                "¿Deseas cerrar sesión de todas formas?",
+                        "Error al guardar", JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                if (resp != JOptionPane.YES_OPTION) return;
+            }
             this.dispose();
             new LoginFrame(controlador).setVisible(true);
         });

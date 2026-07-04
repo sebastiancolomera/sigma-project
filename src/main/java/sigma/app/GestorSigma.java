@@ -26,14 +26,19 @@ public class GestorSigma {
         servicioMetas.cargar();
     }
 
-    public void guardarDatos() {
-        servicioUsuarios.guardar();
-        servicioMetas.guardar();
+    public boolean guardarDatos() {
+        boolean okUsuarios = servicioUsuarios.guardar();
+        boolean okMetas = servicioMetas.guardar();
+        return okUsuarios && okMetas;
     }
 
     public void resetearSistema() {
         servicioUsuarios.resetear();
         servicioMetas.resetear();
+    }
+
+    public void actualizarEstadosVencidos() {
+        servicioMetas.actualizarEstadosVencidos();
     }
 
     public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
@@ -91,6 +96,7 @@ public class GestorSigma {
     public List<Tarea> getTareasDeUsuario(Usuario u) {
         return servicioMetas.getTareasDeUsuario(u);
     }
+
     public List<Meta> getMetas() {
         return servicioMetas.getMetas();
     }
