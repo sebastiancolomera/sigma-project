@@ -38,11 +38,12 @@ public class LoginFrame extends JFrame {
 
         if (u != null) {
             this.dispose();
-            if (u.esSuperusuario()) new MenuSuperusuarioFrame(controlador).setVisible(true);
+            if (u.esSuperusuario()) new MenuSuperusuarioFrame(controlador, u).setVisible(true);
             else if (u.esLider()) new MenuLiderFrame(controlador).setVisible(true);
             else new MenuUsuarioFrame(controlador, u).setVisible(true);
         } else {
-            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos", "Error de autenticación", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Usuario o contraseña incorrectos",
+                    "Error de autenticación", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
