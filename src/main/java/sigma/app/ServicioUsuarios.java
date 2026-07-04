@@ -31,11 +31,12 @@ public class ServicioUsuarios {
         }
     }
 
-    public void guardar() {
+    public boolean guardar() {
         try {
-            gestorJSON.guardarUsuarios(new ArrayList<>(usuarios), rutaUsuarios);
+            return gestorJSON.guardarUsuarios(new ArrayList<>(usuarios), rutaUsuarios);
         } catch (Exception e) {
             System.err.println("No se pudieron guardar los usuarios en " + rutaUsuarios + ": " + e.getMessage());
+            return false;
         }
     }
 
