@@ -7,7 +7,6 @@ import sigma.modelo.Tarea;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,9 +16,10 @@ public class EditarFechasPanel extends JPanel {
     private final JDialog dialogPadre;
 
     private final JComboBox<String> comboTareas;
-    private final JTextField txtFechaInicio;
-    private final JTextField txtFechaTermino;
     private final JButton btnGuardar;
+
+    private JComboBox<Integer> cbDiaInicio, cbMesInicio, cbAnioInicio;
+    private JComboBox<Integer> cbDiaTermino, cbMesTermino, cbAnioTermino;
 
     private final List<Tarea> tareasDisponibles = new ArrayList<>();
 
@@ -27,33 +27,65 @@ public class EditarFechasPanel extends JPanel {
         this.controlador = controlador;
         this.dialogPadre = dialogPadre;
 
-        setLayout(new GridLayout(4, 2));
+        setLayout(new GridLayout(4, 2, 5, 5));
 
         comboTareas = new JComboBox<>();
-        txtFechaInicio = new JTextField();
-        txtFechaTermino = new JTextField();
         btnGuardar = new JButton("Guardar");
-        btnGuardar.setEnabled(false);
 
         cargarTareas();
 
+        JPanel pnlInicio = crearSelectorFecha(true);
+        JPanel pnlTermino = crearSelectorFecha(false);
+
         add(new JLabel("Tarea:"));
         add(comboTareas);
-        add(new JLabel("Fecha inicio (AAAA-MM-DD):"));
-        add(txtFechaInicio);
-        add(new JLabel("Fecha término (AAAA-MM-DD):"));
-        add(txtFechaTermino);
+        add(new JLabel("Fecha inicio:"));
+        add(pnlInicio);
+        add(new JLabel("Fecha término:"));
+        add(pnlTermino);
         add(new JLabel());
         add(btnGuardar);
 
         comboTareas.addActionListener(e -> precargarFechas());
 
-        txtFechaInicio.getDocument().addDocumentListener(new SimpleDocumentListener(this::validarFechas));
-        txtFechaTermino.getDocument().addDocumentListener(new SimpleDocumentListener(this::validarFechas));
-
         btnGuardar.addActionListener(e -> guardar());
 
         precargarFechas();
+    }
+
+    private JPanel crearSelectorFecha(boolean esInicio) {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+
+        Integer[] dias = new Integer[31];
+        for (int i = 0; i < 31; i++) dias[i] = i + 1;
+        JComboBox<Integer> cbDia = new JComboBox<>(dias);
+
+        Integer[] meses = new Integer[12];
+        for (int i = 0; i < 12; i++) meses[i] = i + 1;
+        JComboBox<Integer> cbMes = new JComboBox<>(meses);
+
+        int anioActual = LocalDate.now().getYear();
+        Integer[] anios = new Integer[6];
+        for (int i = 0; i < 6; i++) anios[i] = anioActual + i;
+        JComboBox<Integer> cbAnio = new JComboBox<>(anios);
+
+        panel.add(cbDia);
+        panel.add(new JLabel("/"));
+        panel.add(cbMes);
+        panel.add(new JLabel("/"));
+        panel.add(cbAnio);
+
+        if (esInicio) {
+            cbDiaInicio = cbDia;
+            cbMesInicio = cbMes;
+            cbAnioInicio = cbAnio;
+        } else {
+            cbDiaTermino = cbDia;
+            cbMesTermino = cbMes;
+            cbAnioTermino = cbAnio;
+        }
+
+        return panel;
     }
 
     private void cargarTareas() {
@@ -73,20 +105,19 @@ public class EditarFechasPanel extends JPanel {
             return;
         }
         Tarea seleccionada = tareasDisponibles.get(index);
-        txtFechaInicio.setText(seleccionada.getFechaInicio() != null
-                ? seleccionada.getFechaInicio().toString() : "");
-        txtFechaTermino.setText(seleccionada.getFechaTermino() != null
-                ? seleccionada.getFechaTermino().toString() : "");
-        validarFechas();
-    }
 
-    private void validarFechas() {
-        try {
-            LocalDate inicio = LocalDate.parse(txtFechaInicio.getText().trim());
-            LocalDate termino = LocalDate.parse(txtFechaTermino.getText().trim());
-            btnGuardar.setEnabled(!termino.isBefore(inicio));
-        } catch (DateTimeParseException ex) {
-            btnGuardar.setEnabled(false);
+        LocalDate inicio = seleccionada.getFechaInicio();
+        if (inicio != null) {
+            cbDiaInicio.setSelectedItem(inicio.getDayOfMonth());
+            cbMesInicio.setSelectedItem(inicio.getMonthValue());
+            cbAnioInicio.setSelectedItem(inicio.getYear());
+        }
+
+        LocalDate termino = seleccionada.getFechaTermino();
+        if (termino != null) {
+            cbDiaTermino.setSelectedItem(termino.getDayOfMonth());
+            cbMesTermino.setSelectedItem(termino.getMonthValue());
+            cbAnioTermino.setSelectedItem(termino.getYear());
         }
     }
 
@@ -97,39 +128,33 @@ public class EditarFechasPanel extends JPanel {
         }
         String titulo = tareasDisponibles.get(index).getTitulo();
 
-        try {
-            LocalDate nuevaFechaInicio = LocalDate.parse(txtFechaInicio.getText().trim());
-            LocalDate nuevaFechaTermino = LocalDate.parse(txtFechaTermino.getText().trim());
+        LocalDate hoy = LocalDate.now();
 
-            boolean exito = controlador.actualizarFechasTarea(titulo, nuevaFechaInicio, nuevaFechaTermino);
+        int diaIni = valorSeguro(cbDiaInicio, hoy.getDayOfMonth());
+        int mesIni = valorSeguro(cbMesInicio, hoy.getMonthValue());
+        int anioIni = valorSeguro(cbAnioInicio, hoy.getYear());
+        LocalDate nuevaFechaInicio = LocalDate.of(anioIni, mesIni, diaIni);
 
-            if (exito) {
-                JOptionPane.showMessageDialog(this, "Fechas actualizadas correctamente.");
-                if (dialogPadre != null) {
-                    dialogPadre.dispose();
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "No se pudo actualizar la tarea.",
-                        "Error", JOptionPane.ERROR_MESSAGE);
+        int diaFin = valorSeguro(cbDiaTermino, hoy.getDayOfMonth());
+        int mesFin = valorSeguro(cbMesTermino, hoy.getMonthValue());
+        int anioFin = valorSeguro(cbAnioTermino, hoy.getYear());
+        LocalDate nuevaFechaTermino = LocalDate.of(anioFin, mesFin, diaFin);
+
+        boolean exito = controlador.actualizarFechasTarea(titulo, nuevaFechaInicio, nuevaFechaTermino);
+
+        if (exito) {
+            JOptionPane.showMessageDialog(this, "Fechas actualizadas correctamente.");
+            if (dialogPadre != null) {
+                dialogPadre.dispose();
             }
-        } catch (DateTimeParseException ex) {
-            JOptionPane.showMessageDialog(this, "Formato de fecha inválido.",
+        } else {
+            JOptionPane.showMessageDialog(this, "No se pudo actualizar la tarea.",
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private static class SimpleDocumentListener implements javax.swing.event.DocumentListener {
-        private final Runnable accion;
-
-        SimpleDocumentListener(Runnable accion) {
-            this.accion = accion;
-        }
-
-        @Override
-        public void insertUpdate(javax.swing.event.DocumentEvent e) { accion.run(); }
-        @Override
-        public void removeUpdate(javax.swing.event.DocumentEvent e) { accion.run(); }
-        @Override
-        public void changedUpdate(javax.swing.event.DocumentEvent e) { accion.run(); }
+    private int valorSeguro(JComboBox<Integer> combo, int valorPorDefecto) {
+        Integer valor = (Integer) combo.getSelectedItem();
+        return (valor != null) ? valor : valorPorDefecto;
     }
 }
