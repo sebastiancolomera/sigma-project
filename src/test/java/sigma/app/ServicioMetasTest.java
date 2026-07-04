@@ -204,4 +204,45 @@ class ServicioMetasTest {
         assertFalse(servicio.actualizarFechasTarea("Tarea 1", null, LocalDate.now()));
         assertFalse(servicio.actualizarFechasTarea("Tarea 1", LocalDate.now(), null));
     }
+
+    @Test
+    @DisplayName("eliminarTareaDeMetaPorTitulo elimina una tarea existente correctamente")
+    void testEliminarTareaDeMetaPorTituloExitosa() {
+        servicio.agregarMeta("Meta Test");
+        Usuario usuario = new Usuario("juan", "hash", RolUsuario.USUARIO);
+        Tarea tarea = new Tarea("Tarea 1", "Descripcion", usuario,
+                LocalDate.now(), LocalDate.now().plusDays(7), EstadoTarea.PENDIENTE);
+        servicio.agregarTareaAMeta("Meta Test", tarea);
+
+        assertEquals(1, servicio.buscarMeta("Meta Test").getTareas().size());
+
+        boolean resultado = servicio.eliminarTareaDeMetaPorTitulo("Meta Test", "Tarea 1");
+
+        assertTrue(resultado);
+        assertEquals(0, servicio.buscarMeta("Meta Test").getTareas().size());
+    }
+
+    @Test
+    @DisplayName("eliminarTareaDeMetaPorTitulo retorna false si la tarea no existe")
+    void testEliminarTareaDeMetaPorTituloTareaInexistente() {
+        servicio.agregarMeta("Meta Test");
+        Usuario usuario = new Usuario("juan", "hash", RolUsuario.USUARIO);
+        Tarea tarea = new Tarea("Tarea 1", "Descripcion", usuario,
+                LocalDate.now(), LocalDate.now().plusDays(7), EstadoTarea.PENDIENTE);
+        servicio.agregarTareaAMeta("Meta Test", tarea);
+
+        boolean resultado = servicio.eliminarTareaDeMetaPorTitulo("Meta Test", "Tarea Inexistente");
+
+        assertFalse(resultado);
+        assertEquals(1, servicio.buscarMeta("Meta Test").getTareas().size());
+    }
+
+    @Test
+    @DisplayName("eliminarTareaDeMetaPorTitulo retorna false si la meta no existe")
+    void testEliminarTareaDeMetaPorTituloMetaInexistente() {
+        boolean resultado = servicio.eliminarTareaDeMetaPorTitulo("Meta Inexistente", "Tarea 1");
+        assertFalse(resultado);
+    }
 }
+
+

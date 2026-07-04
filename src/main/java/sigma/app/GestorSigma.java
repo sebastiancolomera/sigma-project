@@ -84,6 +84,10 @@ public class GestorSigma {
         return servicioMetas.actualizarFechasTarea(titulo, inicio, termino);
     }
 
+    public boolean eliminarTareaDeMetaPorTitulo(String nombreMeta, String tituloTarea) {
+        return servicioMetas.eliminarTareaDeMetaPorTitulo(nombreMeta, tituloTarea);
+    }
+
     public List<Tarea> getTareasDeUsuario(Usuario u) {
         return servicioMetas.getTareasDeUsuario(u);
     }

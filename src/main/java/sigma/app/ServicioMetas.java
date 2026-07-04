@@ -102,6 +102,27 @@ public class ServicioMetas {
         return false;
     }
 
+    public boolean eliminarTareaDeMetaPorTitulo(String nombreMeta, String tituloTarea) {
+        if (nombreMeta == null || tituloTarea == null) return false;
+
+        Meta meta = buscarMeta(nombreMeta);
+        if (meta == null) return false;
+
+        Tarea objetivo = null;
+        for (Tarea t : meta.getTareas()) {
+            if (t.getTitulo().equals(tituloTarea)) {
+                objetivo = t;
+                break;
+            }
+        }
+
+        if (objetivo == null) return false;
+
+        meta.eliminarTarea(objetivo);
+        guardar();
+        return true;
+    }
+
     public List<Tarea> getTareasDeUsuario(Usuario u) {
         List<Tarea> resultado = new ArrayList<>();
         for (Meta meta : metas) {

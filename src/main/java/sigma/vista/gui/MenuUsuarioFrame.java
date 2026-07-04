@@ -1,73 +1,90 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
+import sigma.modelo.EstadoTarea;
+import sigma.modelo.Meta;
+import sigma.modelo.Tarea;
 import sigma.modelo.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.List;
 
 public class MenuUsuarioFrame extends JFrame {
 
     private final GestorSigma controlador;
     private final Usuario usuarioActual;
 
-    public MenuUsuarioFrame(GestorSigma controlador, Usuario usuarioActual) {
+    public MenuUsuarioFrame(GestorSigma controlador, Usuario usuario) {
         this.controlador = controlador;
-        this.usuarioActual = usuarioActual;
+        this.usuarioActual = usuario;
 
-        setTitle("Menú Usuario");
+        setTitle("SIGMA - Menú Usuario");
         setSize(400, 250);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);
-        setLayout(new GridLayout(3, 1));
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new GridLayout(3, 1, 10, 10));
 
-        JButton btnMisTareas = new JButton("Ver mis tareas");
+        JButton btnVerTareas = new JButton("Ver mis tareas");
         JButton btnCambiarEstado = new JButton("Cambiar estado de tarea");
-        JButton btnCerrarSesion = new JButton("Cerrar Sesión");
+        JButton btnCerrar = new JButton("Cerrar Sesión");
 
-        btnMisTareas.addActionListener(e -> {
+        btnVerTareas.addActionListener(e -> {
             StringBuilder sb = new StringBuilder();
 
-            controlador.getTareasDeUsuario(usuarioActual).forEach(t -> {
-                String titulo = (t.getTitulo() != null) ? t.getTitulo() : "Sin título";
-                String fechaInicio = (t.getFechaInicio() != null) ? t.getFechaInicio().toString() : "sin fecha";
-                String fechaTermino = (t.getFechaTermino() != null) ? t.getFechaTermino().toString() : "sin fecha";
-                sb.append("- ").append(titulo)
-                        .append(" [").append(t.getEstado()).append("]")
-                        .append(" (").append(fechaInicio).append(" → ")
-                        .append(fechaTermino).append(")\n");
-            });
+            for (Meta meta : controlador.getMetas()) {
+                for (Tarea tarea : meta.getTareas()) {
+                    if (tarea.getAsignado() != null &&
+                            tarea.getAsignado().getNombre().equals(usuarioActual.getNombre())) {
 
-            controlador.getMetas().forEach(m -> {
-                boolean tieneTareas = m.getTareas().stream()
-                        .anyMatch(t -> t.getAsignado() != null
-                                && t.getAsignado().getNombre().equals(usuarioActual.getNombre()));
-                if (tieneTareas) {
-                    sb.append("Progreso de la meta '").append(m.getNombre())
-                            .append("': ").append(m.calcularProgreso()).append("%\n");
+                        sb.append("[Meta: ").append(meta.getNombre()).append("]\n");
+                        sb.append("  Tarea: ").append(tarea.getTitulo()).append("\n");
+                        sb.append("  Estado: ").append(tarea.getEstado()).append("\n");
+
+                        if (tarea.getFechaInicio() != null && tarea.getFechaTermino() != null) {
+                            sb.append("  Inicio: ").append(tarea.getFechaInicio()).append("\n");
+                            sb.append("  Termino: ").append(tarea.getFechaTermino()).append("\n");
+                        } else {
+                            sb.append("  Fechas: Sin definir\n");
+                        }
+                        sb.append("\n");
+                    }
                 }
-            });
+            }
 
-            JTextArea area = new JTextArea(sb.toString());
+            String contenido = sb.isEmpty()
+                    ? "No tienes tareas asignadas."
+                    : sb.toString();
+
+            JTextArea area = new JTextArea(contenido);
             area.setEditable(false);
-            JOptionPane.showMessageDialog(this, new JScrollPane(area), "Mis Tareas", JOptionPane.INFORMATION_MESSAGE);
+            area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+            JScrollPane scroll = new JScrollPane(area);
+            scroll.setPreferredSize(new Dimension(450, 300));
+
+            JOptionPane.showMessageDialog(this, scroll, "Mis Tareas", JOptionPane.INFORMATION_MESSAGE);
         });
 
         btnCambiarEstado.addActionListener(e -> {
-            JDialog dialog = new JDialog(this, "Cambiar Estado de Tarea", true);
-            dialog.setSize(350, 200);
-            dialog.setLocationRelativeTo(this);
+            if (controlador.getTareasDeUsuario(usuarioActual).isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "No tienes tareas asignadas en este momento.",
+                        "Sin tareas", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+            JDialog dialog = new JDialog(this, "Cambiar Estado", true);
             dialog.add(new CambiarEstadoPanel(controlador, usuarioActual));
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);
         });
 
-        btnCerrarSesion.addActionListener(e -> {
-            dispose();
+        btnCerrar.addActionListener(e -> {
+            controlador.guardarDatos();
+            this.dispose();
             new LoginFrame(controlador).setVisible(true);
         });
-
-        add(btnMisTareas);
+        add(btnVerTareas);
         add(btnCambiarEstado);
-        add(btnCerrarSesion);
+        add(btnCerrar);
     }
 }
