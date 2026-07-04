@@ -38,7 +38,7 @@ public class ProgresoMetasPanel extends JPanel {
                 barra.setForeground(new Color(251, 192, 45));
             } else {
                 barra.setForeground(new Color(211, 47, 47));
-
+            }
             add(lblNombre);
             add(Box.createVerticalStrut(4));
             add(barra);
