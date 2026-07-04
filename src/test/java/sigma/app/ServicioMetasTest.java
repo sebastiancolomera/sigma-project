@@ -243,6 +243,45 @@ class ServicioMetasTest {
         boolean resultado = servicio.eliminarTareaDeMetaPorTitulo("Meta Inexistente", "Tarea 1");
         assertFalse(resultado);
     }
+
+    @Test
+    @DisplayName("actualizarEstadosVencidos marca como FUERA_DE_PLAZO las tareas vencidas no completadas")
+    void testActualizarEstadosVencidosMarcaTareaVencida() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea vencida", "Descripción", usuarioDePrueba,
+                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), EstadoTarea.PENDIENTE);
+        servicio.agregarTareaAMeta("Meta 1", tarea);
+
+        servicio.actualizarEstadosVencidos();
+
+        assertEquals(EstadoTarea.FUERA_DE_PLAZO, tarea.getEstado());
+    }
+
+    @Test
+    @DisplayName("actualizarEstadosVencidos no modifica tareas completadas aunque estén vencidas")
+    void testActualizarEstadosVencidosNoTocaCompletadas() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea completada", "Descripción", usuarioDePrueba,
+                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), EstadoTarea.COMPLETADA);
+        servicio.agregarTareaAMeta("Meta 1", tarea);
+
+        servicio.actualizarEstadosVencidos();
+
+        assertEquals(EstadoTarea.COMPLETADA, tarea.getEstado());
+    }
+
+    @Test
+    @DisplayName("actualizarEstadosVencidos no modifica tareas cuya fecha de término aún no ha pasado")
+    void testActualizarEstadosVencidosNoTocaTareasVigentes() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea vigente", "Descripción", usuarioDePrueba,
+                LocalDate.now(), LocalDate.now().plusDays(5), EstadoTarea.PENDIENTE);
+        servicio.agregarTareaAMeta("Meta 1", tarea);
+
+        servicio.actualizarEstadosVencidos();
+
+        assertEquals(EstadoTarea.PENDIENTE, tarea.getEstado());
+    }
 }
 
 
