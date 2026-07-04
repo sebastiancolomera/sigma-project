@@ -8,8 +8,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        GestorSigma controlador = new GestorSigma();
+        final GestorSigma controlador = new GestorSigma();
         controlador.cargarDatos();
+        controlador.actualizarEstadosVencidos();
 
         if (controlador.getUsuarios().isEmpty()) {
             controlador.registrarUsuario(
@@ -18,6 +19,8 @@ public class Main {
                     RolUsuario.SUPERUSUARIO
             );
         }
+
+        Runtime.getRuntime().addShutdownHook(new Thread(controlador::guardarDatos, "sigma-shutdown-saver"));
 
         SwingUtilities.invokeLater(() -> {
             LoginFrame login = new LoginFrame(controlador);
