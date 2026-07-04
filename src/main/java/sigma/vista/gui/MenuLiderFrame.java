@@ -96,7 +96,7 @@ public class MenuLiderFrame extends JFrame {
 
         btnEditarFechas.addActionListener(e -> {
             JDialog dialog = new JDialog(this, "Editar Fechas de Tarea", true);
-            dialog.add(new CambiarEstadoPanel(controlador, null));
+            dialog.add(new EditarFechasPanel(controlador, dialog));
             dialog.pack();
             dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);
