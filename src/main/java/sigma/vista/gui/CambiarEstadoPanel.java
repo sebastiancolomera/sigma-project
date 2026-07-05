@@ -18,20 +18,24 @@ public class CambiarEstadoPanel extends JPanel {
     private final Usuario usuario;
     private final JComboBox<String> cmbTareas;
     private final JComboBox<EstadoTarea> cmbEstado;
+    private final JLabel lblEstadoEntrega;
 
     public CambiarEstadoPanel(GestorSigma controlador, Usuario usuario) {
         this.controlador = controlador;
         this.usuario = usuario;
 
-        setLayout(new GridLayout(3, 2, 5, 5));
+        setLayout(new GridLayout(4, 2, 5, 5));
 
         cmbTareas = new JComboBox<>();
         cmbEstado = new JComboBox<>(EstadoTarea.values());
+        lblEstadoEntrega = new JLabel("Seleccione una tarea");
 
         add(new JLabel("Seleccionar Tarea:"));
         add(cmbTareas);
         add(new JLabel("Seleccionar Estado:"));
         add(cmbEstado);
+        add(new JLabel("Estado de Entrega:"));
+        add(lblEstadoEntrega);
 
         JButton btnActualizar = new JButton("Actualizar");
         btnActualizar.addActionListener(e -> {
@@ -51,6 +55,8 @@ public class CambiarEstadoPanel extends JPanel {
 
         add(new JLabel());
         add(btnActualizar);
+
+        cmbTareas.addActionListener(e -> actualizarEstadoEntrega());
 
         cargarTareas();
     }
@@ -74,6 +80,35 @@ public class CambiarEstadoPanel extends JPanel {
 
         if (cmbTareas.getItemCount() == 0) {
             cmbTareas.addItem("(Sin tareas disponibles)");
+            lblEstadoEntrega.setText("Sin tareas");
+        } else {
+            actualizarEstadoEntrega();
         }
+    }
+
+    private void actualizarEstadoEntrega() {
+        String titulo = (String) cmbTareas.getSelectedItem();
+        if (titulo == null || titulo.equals("(Sin tareas disponibles)")) {
+            lblEstadoEntrega.setText("Seleccione una tarea");
+            return;
+        }
+
+        for (Meta meta : controlador.getMetas()) {
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getTitulo().equals(titulo)) {
+                    String estadoEntrega = "Sin definir";
+                    try {
+                        java.lang.reflect.Method m = tarea.getClass().getMethod("getEstadoEntrega");
+                        Object resultado = m.invoke(tarea);
+                        estadoEntrega = resultado != null ? resultado.toString() : "Sin definir";
+                    } catch (Exception e) {
+                        estadoEntrega = "No disponible";
+                    }
+                    lblEstadoEntrega.setText(estadoEntrega);
+                    return;
+                }
+            }
+        }
+        lblEstadoEntrega.setText("No encontrada");
     }
 }

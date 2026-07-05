@@ -1,9 +1,6 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
-import sigma.modelo.EstadoTarea;
-import sigma.modelo.Meta;
-import sigma.modelo.Tarea;
 import sigma.modelo.Usuario;
 
 import javax.swing.*;
@@ -37,35 +34,7 @@ public class MenuUsuarioFrame extends JFrame {
                 );
                 return;
             }
-
-            StringBuilder sb = new StringBuilder();
-            for (Meta meta : controlador.getMetas()) {
-                for (Tarea tarea : meta.getTareas()) {
-                    if (tarea.getAsignado() != null &&
-                            tarea.getAsignado().getNombre().equals(usuarioActual.getNombre())) {
-
-                        sb.append("[Meta: ").append(meta.getNombre()).append("]\n");
-                        sb.append("  Tarea: ").append(tarea.getTitulo()).append("\n");
-                        sb.append("  Estado: ").append(tarea.getEstado()).append("\n");
-
-                        if (tarea.getFechaInicio() != null && tarea.getFechaTermino() != null) {
-                            sb.append("  Inicio: ").append(tarea.getFechaInicio()).append("\n");
-                            sb.append("  Termino: ").append(tarea.getFechaTermino()).append("\n");
-                        } else {
-                            sb.append("  Fechas: Sin definir\n");
-                        }
-                        sb.append("\n");
-                    }
-                }
-            }
-
-            JTextArea area = new JTextArea(sb.toString());
-            area.setEditable(false);
-            area.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
-            JScrollPane scroll = new JScrollPane(area);
-            scroll.setPreferredSize(new Dimension(450, 300));
-
-            JOptionPane.showMessageDialog(this, scroll, "Mis Tareas", JOptionPane.INFORMATION_MESSAGE);
+            new VerTareasDialog(this, controlador, usuarioActual).setVisible(true);
         });
 
         btnCambiarEstado.addActionListener(e -> {
