@@ -49,8 +49,8 @@ public class GestorSigma {
         return servicioUsuarios.autenticarUsuario(nombre, contrasena);
     }
 
-    public boolean actualizarRol(String nombreUsuario, RolUsuario nuevoRol) {
-        return servicioUsuarios.actualizarRol(nombreUsuario, nuevoRol);
+    public ResultadoOperacion actualizarRol(String nombreUsuario, RolUsuario nuevoRol, Usuario ejecutor) {
+        return servicioUsuarios.actualizarRol(nombreUsuario, nuevoRol, ejecutor);
     }
 
     public boolean eliminarUsuario(String nombreUsuario) {
@@ -91,8 +91,8 @@ public class GestorSigma {
         return servicioMetas.agregarTareaAMeta(nombreMeta, tarea);
     }
 
-    public boolean cambiarEstadoTarea(String titulo, EstadoTarea nuevo) {
-        return servicioMetas.cambiarEstadoTarea(titulo, nuevo);
+    public ResultadoOperacion cambiarEstadoTarea(String titulo, EstadoTarea nuevo, Usuario ejecutor) {
+        return servicioMetas.cambiarEstadoTarea(titulo, nuevo, ejecutor);
     }
 
     public boolean actualizarFechasTarea(String titulo, LocalDate inicio, LocalDate termino) {
