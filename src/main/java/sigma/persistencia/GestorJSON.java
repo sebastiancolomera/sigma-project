@@ -5,6 +5,7 @@ import com.google.gson.reflect.TypeToken;
 import sigma.modelo.Meta;
 import sigma.modelo.Usuario;
 import sigma.modelo.EstadoTarea;
+import sigma.modelo.EstadoEntrega;
 import sigma.modelo.RolUsuario;
 
 import java.io.*;
@@ -40,6 +41,24 @@ public class GestorJSON {
                     return EstadoTarea.valueOf(val);
                 });
 
+        builder.registerTypeAdapter(EstadoTarea.class,
+                (JsonDeserializer<EstadoTarea>) (json, type, ctx) -> {
+                    String val = json.getAsString().toUpperCase().trim();
+                    switch (val) {
+                        case "POSTERGADA":
+                            return EstadoTarea.PENDIENTE;
+                        case "FUERA_DE_PLAZO":
+                            return EstadoTarea.EN_PROCESO;
+                        default:
+                            return EstadoTarea.valueOf(val);
+                    }
+                });
+
+        builder.registerTypeAdapter(EstadoEntrega.class,
+                (JsonDeserializer<EstadoEntrega>) (json, type, ctx) -> {
+                    String val = json.getAsString().toUpperCase().trim();
+                    return EstadoEntrega.valueOf(val);
+                });
         this.gson = builder.create();
     }
 
