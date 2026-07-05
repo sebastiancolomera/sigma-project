@@ -1,6 +1,7 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
+import sigma.app.ValidadorFecha;
 import sigma.modelo.Meta;
 import sigma.modelo.Tarea;
 
@@ -133,11 +134,20 @@ public class EditarFechasPanel extends JPanel {
         int diaIni = valorSeguro(cbDiaInicio, hoy.getDayOfMonth());
         int mesIni = valorSeguro(cbMesInicio, hoy.getMonthValue());
         int anioIni = valorSeguro(cbAnioInicio, hoy.getYear());
-        LocalDate nuevaFechaInicio = LocalDate.of(anioIni, mesIni, diaIni);
 
         int diaFin = valorSeguro(cbDiaTermino, hoy.getDayOfMonth());
         int mesFin = valorSeguro(cbMesTermino, hoy.getMonthValue());
         int anioFin = valorSeguro(cbAnioTermino, hoy.getYear());
+
+        if (!ValidadorFecha.esFechaValida(diaIni, mesIni, anioIni)
+                || !ValidadorFecha.esFechaValida(diaFin, mesFin, anioFin)) {
+            JOptionPane.showMessageDialog(this,
+                    "La fecha seleccionada no existe en el calendario.",
+                    "Fecha inválida", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        LocalDate nuevaFechaInicio = LocalDate.of(anioIni, mesIni, diaIni);
         LocalDate nuevaFechaTermino = LocalDate.of(anioFin, mesFin, diaFin);
 
         boolean exito = controlador.actualizarFechasTarea(titulo, nuevaFechaInicio, nuevaFechaTermino);
