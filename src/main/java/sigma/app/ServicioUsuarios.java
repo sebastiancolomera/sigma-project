@@ -71,15 +71,23 @@ public class ServicioUsuarios {
         return null;
     }
 
-    public boolean actualizarRol(String nombreUsuario, RolUsuario nuevoRol) {
+    public ResultadoOperacion actualizarRol(String nombreUsuario, RolUsuario nuevoRol, Usuario ejecutor) {
+        if (nombreUsuario == null || nombreUsuario.isBlank() || nuevoRol == null) {
+            return new ResultadoOperacion(false, "Datos inválidos para actualizar el rol.");
+        }
+
+        if  (ejecutor != null && ejecutor.esSuperusuario() && ejecutor.getNombre().equalsIgnoreCase(nombreUsuario)) {
+            return new ResultadoOperacion(false, "El superusuario no puede cambiar su propio rol.");
+        }
+
         for (Usuario u : usuarios) {
             if (u.getNombre().equalsIgnoreCase(nombreUsuario)) {
                 u.setRol(nuevoRol);
                 guardar();
-                return true;
+                return new ResultadoOperacion(true, "Rol actualizado.");
             }
         }
-        return false;
+        return new ResultadoOperacion(false, "Usuario no encontrado.");
     }
 
     public boolean eliminarUsuario(String nombreUsuario) {
