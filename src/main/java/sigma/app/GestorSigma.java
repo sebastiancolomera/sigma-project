@@ -54,7 +54,17 @@ public class GestorSigma {
     }
 
     public boolean eliminarUsuario(String nombreUsuario) {
-        return servicioUsuarios.eliminarUsuario(nombreUsuario);
+        boolean usuarioEliminado = servicioUsuarios.eliminarUsuario(nombreUsuario);
+        if (usuarioEliminado) {
+            try {
+                servicioMetas.eliminarTareasDeUsuario(nombreUsuario);
+            } catch (Exception e) {
+                System.err.println("El usuario '" + nombreUsuario
+                        + "' fue eliminado, pero no se pudo completar la cascada de sus tareas: "
+                        + e.getMessage());
+            }
+        }
+        return usuarioEliminado;
     }
 
     public List<Usuario> getUsuarios() {

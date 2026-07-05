@@ -175,4 +175,26 @@ public class ServicioMetas {
     public List<Meta> getMetas() {
         return new ArrayList<>(metas);
     }
+
+    public int eliminarTareasDeUsuario(String nombreUsuario) {
+        if (nombreUsuario == null) return 0;
+
+        int eliminadas = 0;
+        for (Meta meta : metas) {
+            List<Tarea> aEliminar = new ArrayList<>();
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getAsignado() != null
+                        && tarea.getAsignado().getNombre().equals(nombreUsuario)) {
+                    aEliminar.add(tarea);
+                }
+            }
+            for (Tarea tarea : aEliminar) {
+                meta.eliminarTarea(tarea);
+                eliminadas++;
+            }
+        }
+
+        if (eliminadas > 0) guardar();
+        return eliminadas;
+    }
 }
