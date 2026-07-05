@@ -69,9 +69,25 @@ public class ServicioMetas {
         if (tarea == null || tarea.getTitulo() == null || tarea.getTitulo().isBlank()) return false;
         Meta meta = buscarMeta(nombreMeta);
         if (meta == null) return false;
+        if (existeTareaConTitulo(tarea.getTitulo())) return false;
         meta.agregarTarea(tarea);
         guardar();
         return true;
+    }
+
+
+    public boolean existeTareaConTitulo(String titulo) {
+        if (titulo == null) return false;
+        String tituloNormalizado = titulo.trim();
+        for (Meta meta : metas) {
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getTitulo() != null
+                        && tarea.getTitulo().trim().equalsIgnoreCase(tituloNormalizado)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public boolean cambiarEstadoTarea(String titulo, EstadoTarea nuevo) {
@@ -124,11 +140,7 @@ public class ServicioMetas {
         return true;
     }
 
-    /**
-     * Recorre todas las tareas y marca como FUERA_DE_PLAZO aquellas cuya
-     * fechaTermino ya pasó y cuyo estado no sea COMPLETADA.
-     * Se llama al iniciar la aplicación, después de cargar los datos.
-     */
+
     public void actualizarEstadosVencidos() {
         LocalDate hoy = LocalDate.now();
         boolean huboCambios = false;

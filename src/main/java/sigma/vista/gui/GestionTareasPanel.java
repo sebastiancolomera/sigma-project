@@ -82,8 +82,14 @@ public class GestionTareasPanel extends JPanel {
 
             if (resp != null && metaSeleccionada != null) {
                 Tarea t = new Tarea(titulo, descripcion, resp, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
-                controlador.agregarTareaAMeta(metaSeleccionada, t);
-                JOptionPane.showMessageDialog(this, "Tarea agregada.");
+                boolean agregada = controlador.agregarTareaAMeta(metaSeleccionada, t);
+                if (agregada) {
+                    JOptionPane.showMessageDialog(this, "Tarea agregada.");
+                } else {
+                    JOptionPane.showMessageDialog(this,
+                            "Ya existe una tarea con ese nombre. Elige un título distinto.",
+                            "Título duplicado", JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
