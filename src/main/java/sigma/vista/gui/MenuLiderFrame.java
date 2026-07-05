@@ -24,10 +24,11 @@ public class MenuLiderFrame extends JFrame {
         JButton btnCrearMeta = new JButton("Crear Meta");
         JButton btnAsignarTarea = new JButton("Asignar Tarea");
         JButton btnVerTareas = new JButton("Ver Tareas");
-        JButton btnProgreso = new JButton("Ver Progreso de Metas");  // C-1
+        JButton btnProgreso = new JButton("Ver Progreso de Metas");
         JButton btnCambiarEstado = new JButton("Cambiar Estado de Tarea");
         JButton btnEditarFechas = new JButton("Editar Fechas de Tarea");
-        JButton btnEliminarTarea = new JButton("Eliminar Tarea");     // C-2
+        JButton btnEliminarTarea = new JButton("Eliminar Tarea");
+        JButton btnVerUsuarios = new JButton("Ver Usuarios");
         JButton btnCerrar = new JButton("Cerrar Sesión");
 
         btnCrearMeta.addActionListener(e -> {
@@ -162,6 +163,10 @@ public class MenuLiderFrame extends JFrame {
             }
         });
 
+        btnVerUsuarios.addActionListener(e -> {
+            new VerUsuariosDialog(this, controlador).setVisible(true);
+        });
+
         btnCerrar.addActionListener(e -> {
             boolean ok = controlador.guardarDatos();
             if (!ok) {
@@ -183,6 +188,7 @@ public class MenuLiderFrame extends JFrame {
         add(btnCambiarEstado);
         add(btnEditarFechas);
         add(btnEliminarTarea);
+        add(btnVerUsuarios);
         add(btnCerrar);
     }
 }

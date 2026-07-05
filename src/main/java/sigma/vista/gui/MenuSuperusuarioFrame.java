@@ -24,6 +24,7 @@ public class MenuSuperusuarioFrame extends JFrame {
         JButton btnRegistrar = new JButton("Registrar Usuario");
         JButton btnEliminar = new JButton("Eliminar Usuario");
         JButton btnCambiarRol = new JButton("Cambiar Rol");
+        JButton btnVerUsuarios = new JButton("Ver Usuarios");
         JButton btnReset = new JButton("Resetear Sistema");
         JButton btnCerrar = new JButton("Cerrar sesión");
 
@@ -127,6 +128,10 @@ public class MenuSuperusuarioFrame extends JFrame {
             JOptionPane.showMessageDialog(this, ok ? "Rol actualizado." : "Usuario no encontrado.");
         });
 
+        btnVerUsuarios.addActionListener(e -> {
+            new VerUsuariosDialog(this, controlador).setVisible(true);
+        });
+
         btnReset.addActionListener(e -> {
             int r = JOptionPane.showConfirmDialog(this,
                     "¿Estás seguro de que deseas resetear el sistema? Se eliminarán todos los usuarios y metas.",
@@ -151,6 +156,7 @@ public class MenuSuperusuarioFrame extends JFrame {
         add(btnRegistrar);
         add(btnEliminar);
         add(btnCambiarRol);
+        add(btnVerUsuarios);
         add(btnReset);
         add(btnCerrar);
     }
