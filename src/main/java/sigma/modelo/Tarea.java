@@ -9,6 +9,7 @@ public class Tarea {
     private LocalDate fechaInicio;
     private LocalDate fechaTermino;
     private EstadoTarea estado;
+    private EstadoTarea estadoEntrega;
 
     public Tarea() {
     }
@@ -20,6 +21,15 @@ public class Tarea {
         this.fechaInicio = fechaInicio;
         this.fechaTermino = fechaTermino;
         this.estado = estado;
+        this.estadoEntrega = calcularEstadoEntregaInicial(fechaInicio);
+    }
+
+    private static EstadoEntrega calcularEstadoEntregaInicial(LocalDate fechaInicio) {
+        LocalDate hoy = LocalDate.now();
+        if (fechaInicio != null && fechaInicio.isAfter(hoy)) {
+            return EstadoEntrega.POSTERGADA;
+        }
+        return EstadoEntrega.EN_PLAZO;
     }
 
     public String getTitulo() {
@@ -68,5 +78,30 @@ public class Tarea {
 
     public void setEstado(EstadoTarea estado) {
         this.estado = estado;
+    }
+
+    public EstadoEntrega getEstadoEntrega() {
+        return estadoEntrega;
+    }
+
+    public void recalcularEstadoEntregaPorFecha(LocalDate hoy) {
+        if (this.estado == EstadoTarea.COMPLETADA) {
+            return;
+        }
+        if (fechaInicio != null && hoy.isBefore(fechaInicio)) {
+            this.estadoEntrega = EstadoEntrega.POSTERGADA;
+        } else if (fechaTermino != null && hoy.isAfter(fechaTermino)) {
+            this.estadoEntrega = EstadoEntrega.FUERA_DE_PLAZO;
+        } else {
+            this.estadoEntrega = EstadoEntrega.EN_PLAZO;
+        }
+    }
+
+    public void marcarEntregada(LocalDate hoy) {
+        if (fechaTermino != null && hoy.isAfter(fechaTermino)) {
+            this.estadoEntrega = EstadoEntrega.ENTREGADA_FUERA_DE_PLAZO;
+        } else {
+            this.estadoEntrega = EstadoEntrega.ENTREGADA;
+        }
     }
 }
