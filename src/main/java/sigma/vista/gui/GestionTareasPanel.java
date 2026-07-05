@@ -1,6 +1,7 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
+import sigma.app.ValidadorFecha;
 import sigma.modelo.*;
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +28,8 @@ public class GestionTareasPanel extends JPanel {
         LocalDate semana = hoy.plusDays(7);
 
         JPanel pnlInicio = crearSelectorFecha(true, hoy.getDayOfMonth(), hoy.getMonthValue(), hoy.getYear());
-        JPanel pnlTermino = crearSelectorFecha(false, semana.getDayOfMonth(), semana.getMonthValue(), semana.getYear());
+        JPanel pnlTermino = crearSelectorFecha(false, semana.getDayOfMonth(), semana.getMonthValue(),
+                semana.getYear());
 
         add(new JLabel("Título de Tarea:"));
         add(txtTitulo);
@@ -60,13 +62,22 @@ public class GestionTareasPanel extends JPanel {
             int diaIni = valorSeguro(cbDiaInicio, hoyDefault.getDayOfMonth());
             int mesIni = valorSeguro(cbMesInicio, hoyDefault.getMonthValue());
             int anioIni = valorSeguro(cbAnioInicio, hoyDefault.getYear());
-            LocalDate fechaInicio = LocalDate.of(anioIni, mesIni, diaIni);
 
             LocalDate semanaDefault = hoyDefault.plusDays(7);
 
             int diaFin = valorSeguro(cbDiaTermino, semanaDefault.getDayOfMonth());
             int mesFin = valorSeguro(cbMesTermino, semanaDefault.getMonthValue());
             int anioFin = valorSeguro(cbAnioTermino, semanaDefault.getYear());
+
+            if (!ValidadorFecha.esFechaValida(diaIni, mesIni, anioIni)
+                    || !ValidadorFecha.esFechaValida(diaFin, mesFin, anioFin)) {
+                JOptionPane.showMessageDialog(this,
+                        "La fecha seleccionada no existe en el calendario.",
+                        "Fecha inválida", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            LocalDate fechaInicio = LocalDate.of(anioIni, mesIni, diaIni);
             LocalDate fechaTermino = LocalDate.of(anioFin, mesFin, diaFin);
 
             if (fechaTermino.isBefore(fechaInicio)) {
@@ -82,14 +93,8 @@ public class GestionTareasPanel extends JPanel {
 
             if (resp != null && metaSeleccionada != null) {
                 Tarea t = new Tarea(titulo, descripcion, resp, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
-                boolean agregada = controlador.agregarTareaAMeta(metaSeleccionada, t);
-                if (agregada) {
-                    JOptionPane.showMessageDialog(this, "Tarea agregada.");
-                } else {
-                    JOptionPane.showMessageDialog(this,
-                            "Ya existe una tarea con ese nombre. Elige un título distinto.",
-                            "Título duplicado", JOptionPane.ERROR_MESSAGE);
-                }
+                controlador.agregarTareaAMeta(metaSeleccionada, t);
+                JOptionPane.showMessageDialog(this, "Tarea agregada.");
             }
         });
 
