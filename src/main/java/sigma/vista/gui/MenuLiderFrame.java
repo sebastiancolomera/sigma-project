@@ -13,9 +13,17 @@ import java.util.List;
 public class MenuLiderFrame extends JFrame {
 
     private final GestorSigma controlador;
+    private final Usuario usuarioActual;
 
-    public MenuLiderFrame(GestorSigma controlador) {
+    /**
+     * @param usuarioActual el líder que inició sesión. Se necesita para
+     *                       poder pasarlo a CambiarEstadoPanel y así filtrar
+     *                       y restringir el cambio de estado solo a sus
+     *                       propias tareas (Tarea D-3).
+     */
+    public MenuLiderFrame(GestorSigma controlador, Usuario usuarioActual) {
         this.controlador = controlador;
+        this.usuarioActual = usuarioActual;
         setTitle("SIGMA - Menú Líder");
         setSize(450, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -89,7 +97,7 @@ public class MenuLiderFrame extends JFrame {
                 return;
             }
             JDialog dialog = new JDialog(this, "Cambiar Estado de Tarea", true);
-            dialog.add(new CambiarEstadoPanel(controlador, null));
+            dialog.add(new CambiarEstadoPanel(controlador, usuarioActual));
             dialog.pack();
             dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);

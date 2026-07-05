@@ -1,6 +1,7 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
+import sigma.app.ResultadoOperacion;
 import sigma.modelo.EstadoTarea;
 import sigma.modelo.Meta;
 import sigma.modelo.Tarea;
@@ -37,12 +38,13 @@ public class CambiarEstadoPanel extends JPanel {
             String titulo = (String) cmbTareas.getSelectedItem();
             EstadoTarea nuevoEstado = (EstadoTarea) cmbEstado.getSelectedItem();
             if (titulo != null && nuevoEstado != null) {
-                boolean ok = controlador.cambiarEstadoTarea(titulo, nuevoEstado);
-                if (ok) {
-                    JOptionPane.showMessageDialog(this, "Estado actualizado.");
+                ResultadoOperacion resultado = controlador.cambiarEstadoTarea(titulo, nuevoEstado, usuario);
+                if (resultado.isExito()) {
+                    JOptionPane.showMessageDialog(this, resultado.getMensaje());
                     cargarTareas();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Error al actualizar.");
+                    JOptionPane.showMessageDialog(this, resultado.getMensaje(),
+                            "No se pudo actualizar", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });

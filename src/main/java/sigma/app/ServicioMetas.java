@@ -112,6 +112,16 @@ public class ServicioMetas {
 
     private ResultadoOperacion aplicarCambioEstado(Tarea tarea, EstadoTarea nuevo, Usuario ejecutor) {
         LocalDate hoy = LocalDate.now();
+
+        // D-3: el líder solo puede cambiar el estado de sus propias tareas.
+        // El superusuario (ejecutor == null o sin rol líder) no queda sujeto a esta restricción.
+        if (ejecutor != null && ejecutor.esLider()
+                && (tarea.getAsignado() == null
+                || !tarea.getAsignado().getNombre().equals(ejecutor.getNombre()))) {
+            return new ResultadoOperacion(false,
+                    "No tienes permiso para cambiar el estado de una tarea que no te pertenece.");
+        }
+
         calcularEstadoEntrega(tarea);
 
         if (tarea.getEstadoEntrega() == EstadoEntrega.POSTERGADA) {
@@ -195,7 +205,7 @@ public class ServicioMetas {
     }
 
     private void calcularEstadoEntrega(Tarea tarea) {
-    tarea.recalcularEstadoEntregaPorFecha(LocalDate.now());
+        tarea.recalcularEstadoEntregaPorFecha(LocalDate.now());
     }
 
     public List<Tarea> getTareasDeUsuario(Usuario u) {
