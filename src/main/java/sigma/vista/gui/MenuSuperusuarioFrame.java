@@ -24,6 +24,7 @@ public class MenuSuperusuarioFrame extends JFrame {
         JButton btnRegistrar = new JButton("Registrar Usuario");
         JButton btnEliminar = new JButton("Eliminar Usuario");
         JButton btnCambiarRol = new JButton("Cambiar Rol");
+        JButton btnVerUsuarios = new JButton("Ver Usuarios");
         JButton btnReset = new JButton("Resetear Sistema");
         JButton btnCerrar = new JButton("Cerrar sesión");
 
@@ -155,6 +156,7 @@ public class MenuSuperusuarioFrame extends JFrame {
         add(btnRegistrar);
         add(btnEliminar);
         add(btnCambiarRol);
+        add(btnVerUsuarios);
         add(btnReset);
         add(btnCerrar);
     }
