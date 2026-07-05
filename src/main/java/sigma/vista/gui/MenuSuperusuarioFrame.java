@@ -1,6 +1,7 @@
 package sigma.vista.gui;
 
 import sigma.app.GestorSigma;
+import sigma.app.ResultadoOperacion;
 import sigma.modelo.RolUsuario;
 import sigma.modelo.Usuario;
 
@@ -24,7 +25,6 @@ public class MenuSuperusuarioFrame extends JFrame {
         JButton btnRegistrar = new JButton("Registrar Usuario");
         JButton btnEliminar = new JButton("Eliminar Usuario");
         JButton btnCambiarRol = new JButton("Cambiar Rol");
-        JButton btnVerUsuarios = new JButton("Ver Usuarios");
         JButton btnReset = new JButton("Resetear Sistema");
         JButton btnCerrar = new JButton("Cerrar sesión");
 
@@ -87,7 +87,7 @@ public class MenuSuperusuarioFrame extends JFrame {
         });
 
         btnCambiarRol.addActionListener(e -> {
-            List<Usuario> usuarios = controlador.getUsuarios();
+            List<Usuario> usuarios = controlador.getUsuariosSinSuperusuario();
             if (usuarios.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No hay usuarios registrados.");
                 return;
@@ -124,12 +124,8 @@ public class MenuSuperusuarioFrame extends JFrame {
 
             if (nuevoRol == null) return;
 
-            boolean ok = controlador.actualizarRol(nombre, nuevoRol);
-            JOptionPane.showMessageDialog(this, ok ? "Rol actualizado." : "Usuario no encontrado.");
-        });
-
-        btnVerUsuarios.addActionListener(e -> {
-            new VerUsuariosDialog(this, controlador).setVisible(true);
+            ResultadoOperacion resultado = controlador.actualizarRol(nombre, nuevoRol, usuarioActual);
+            JOptionPane.showMessageDialog(this, resultado.getMensaje());
         });
 
         btnReset.addActionListener(e -> {
@@ -156,7 +152,6 @@ public class MenuSuperusuarioFrame extends JFrame {
         add(btnRegistrar);
         add(btnEliminar);
         add(btnCambiarRol);
-        add(btnVerUsuarios);
         add(btnReset);
         add(btnCerrar);
     }
