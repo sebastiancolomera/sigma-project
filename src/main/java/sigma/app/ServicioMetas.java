@@ -1,6 +1,7 @@
 package sigma.app;
 
 import sigma.modelo.EstadoTarea;
+import sigma.modelo.EstadoEntrega;
 import sigma.modelo.Meta;
 import sigma.modelo.Tarea;
 import sigma.modelo.Usuario;
@@ -28,10 +29,30 @@ public class ServicioMetas {
             if (m != null) {
                 this.metas.addAll(m);
             }
+            migrarEstadoEntregaLegado();
         } catch (Exception e) {
             System.err.println("No se pudieron cargar las metas desde " + rutaMetas + ": " + e.getMessage());
         }
     }
+
+    private void migrarEstadoEntregaLegado() {
+        LocalDate hoy = LocalDate.now();
+        boolean huboCambios = false;
+        for (Meta meta : metas) {
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getEstadoEntrega() == null) {
+                    if (tarea.getEstado() == EstadoTarea.COMPLETADA) {
+                        tarea.marcarEntregada(hoy);
+                    } else {
+                        calcularEstadoEntrega(tarea);
+                    }
+                    huboCambios = true;
+                }
+            }
+        }
+        if (huboCambios) guardar();
+    }
+
 
     public boolean guardar() {
         try {
@@ -75,6 +96,36 @@ public class ServicioMetas {
         return true;
     }
 
+    public ResultadoOperacion cambiarEstadoTarea(String titulo, EstadoTarea nuevo, Usuario ejecutor) {
+        if (titulo == null || nuevo == null) {
+            return new ResultadoOperacion(false, "Datos inválidos para cambiar el estado.");
+        }
+        for (Meta meta : metas) {
+            for (Tarea tarea : meta.getTareas()) {
+                if (tarea.getTitulo().equals(titulo)) {
+                    return aplicarCambioEstado(tarea, nuevo, ejecutor);
+                }
+            }
+        }
+        return new ResultadoOperacion(false, "Tarea no encontrada.");
+    }
+
+    private ResultadoOperacion aplicarCambioEstado(Tarea tarea, EstadoTarea nuevo, Usuario ejecutor) {
+        LocalDate hoy = LocalDate.now();
+        calcularEstadoEntrega(tarea);
+
+        if (tarea.getEstadoEntrega() == EstadoEntrega.POSTERGADA) {
+            return new ResultadoOperacion(false,
+                    "No se puede cambiar el estado: la tarea aún no ha comenzado o ha sido postergada.");
+        }
+
+        tarea.setEstado(nuevo);
+        if (nuevo == EstadoTarea.COMPLETADA) {
+            tarea.marcarEntregada(hoy);
+        }
+        guardar();
+        return new ResultadoOperacion(true, "Estado de la tarea actualizado correctamente.");
+    }
 
     public boolean existeTareaConTitulo(String titulo) {
         if (titulo == null) return false;
@@ -90,19 +141,6 @@ public class ServicioMetas {
         return false;
     }
 
-    public boolean cambiarEstadoTarea(String titulo, EstadoTarea nuevo) {
-        for (Meta meta : metas) {
-            for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getTitulo().equals(titulo)) {
-                    tarea.setEstado(nuevo);
-                    guardar();
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public boolean actualizarFechasTarea(String titulo, LocalDate nuevaInicio, LocalDate nuevaTermino) {
         if (titulo == null || nuevaInicio == null || nuevaTermino == null) return false;
         if (nuevaTermino.isBefore(nuevaInicio)) return false;
@@ -111,6 +149,7 @@ public class ServicioMetas {
                 if (tarea.getTitulo().equals(titulo)) {
                     tarea.setFechaInicio(nuevaInicio);
                     tarea.setFechaTermino(nuevaTermino);
+                    calcularEstadoEntrega(tarea);
                     guardar();
                     return true;
                 }
@@ -142,21 +181,21 @@ public class ServicioMetas {
 
 
     public void actualizarEstadosVencidos() {
-        LocalDate hoy = LocalDate.now();
         boolean huboCambios = false;
-
         for (Meta meta : metas) {
             for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getFechaTermino() != null
-                        && hoy.isAfter(tarea.getFechaTermino())
-                        && tarea.getEstado() != EstadoTarea.COMPLETADA) {
-                    tarea.setEstado(EstadoTarea.FUERA_DE_PLAZO);
+                EstadoEntrega anterior = tarea.getEstadoEntrega();
+                calcularEstadoEntrega(tarea);
+                if(tarea.getEstadoEntrega() != anterior) {
                     huboCambios = true;
                 }
             }
         }
-
         if (huboCambios) guardar();
+    }
+
+    private void calcularEstadoEntrega(Tarea tarea) {
+    tarea.recalcularEstadoEntregaPorFecha(LocalDate.now());
     }
 
     public List<Tarea> getTareasDeUsuario(Usuario u) {
