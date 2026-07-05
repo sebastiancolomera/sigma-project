@@ -127,6 +127,10 @@ public class MenuSuperusuarioFrame extends JFrame {
             JOptionPane.showMessageDialog(this, ok ? "Rol actualizado." : "Usuario no encontrado.");
         });
 
+        btnVerUsuarios.addActionListener(e -> {
+            new VerUsuariosDialog(this, controlador).setVisible(true);
+        });
+
         btnReset.addActionListener(e -> {
             int r = JOptionPane.showConfirmDialog(this,
                     "¿Estás seguro de que deseas resetear el sistema? Se eliminarán todos los usuarios y metas.",
