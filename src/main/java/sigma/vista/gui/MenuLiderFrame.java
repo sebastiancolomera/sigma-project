@@ -62,20 +62,50 @@ public class MenuLiderFrame extends JFrame {
         });
 
         btnVerTareas.addActionListener(e -> {
-            StringBuilder sb = new StringBuilder();
-            controlador.getMetas().forEach(m -> {
-                sb.append("Meta: ").append(m.getNombre()).append("\n");
-                m.getTareas().forEach(t -> {
-                    String nombreAsignado = (t.getAsignado() != null)
-                            ? t.getAsignado().getNombre()
-                            : "Sin asignar";
-                    sb.append(" - ").append(t.getTitulo())
-                            .append(" [").append(t.getEstado()).append("]")
-                            .append(" → ").append(nombreAsignado).append("\n");
-                });
-            });
-            String contenido = sb.isEmpty() ? "No hay tareas registradas." : sb.toString();
-            JOptionPane.showMessageDialog(this, contenido, "Tareas", JOptionPane.INFORMATION_MESSAGE);
+            List<Usuario> usuarios = controlador.getUsuarios();
+            if (usuarios.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No hay usuarios registrados.");
+                return;
+            }
+
+            String[] opciones = usuarios.stream()
+                    .map(u -> u.getNombre() + " — " + u.getRol())
+                    .toArray(String[]::new);
+
+            String seleccion = (String) JOptionPane.showInputDialog(
+                    this,
+                    "Seleccione el usuario para ver sus tareas:",
+                    "Ver Tareas por Usuario",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    opciones,
+                    opciones[0]
+            );
+
+            if (seleccion == null) return;
+
+            String nombreUsuario = seleccion.split(" — ")[0];
+            Usuario seleccionado = controlador.getUsuarios().stream()
+                    .filter(u -> u.getNombre().equals(nombreUsuario))
+                    .findFirst()
+                    .orElse(null);
+
+            if (seleccionado == null) {
+                JOptionPane.showMessageDialog(this, "Usuario no encontrado.");
+                return;
+            }
+
+            if (controlador.getTareasDeUsuario(seleccionado).isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "El usuario " + seleccionado.getNombre() + " no tiene tareas asignadas.",
+                        "Sin tareas",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+                return;
+            }
+
+            new VerTareasDialog(this, controlador, seleccionado).setVisible(true);
         });
 
         btnProgreso.addActionListener(e -> {
