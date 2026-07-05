@@ -162,6 +162,10 @@ public class MenuLiderFrame extends JFrame {
             }
         });
 
+        btnVerUsuarios.addActionListener(e -> {
+            new VerUsuariosDialog(this, controlador).setVisible(true);
+        });
+
         btnCerrar.addActionListener(e -> {
             boolean ok = controlador.guardarDatos();
             if (!ok) {
