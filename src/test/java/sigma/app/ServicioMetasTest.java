@@ -100,14 +100,14 @@ class ServicioMetasTest {
                 LocalDate.now(), LocalDate.now().plusDays(5), EstadoTarea.PENDIENTE);
         servicio.agregarTareaAMeta("Meta 1", tarea);
 
-        assertTrue(servicio.cambiarEstadoTarea("Tarea 1", EstadoTarea.COMPLETADA));
+        assertTrue(servicio.cambiarEstadoTarea("Tarea 1", EstadoTarea.COMPLETADA, null).isExito());
         assertEquals(EstadoTarea.COMPLETADA, tarea.getEstado());
     }
 
     @Test
     @DisplayName("Cambiar el estado de una tarea inexistente falla")
     void testCambiarEstadoTareaInexistente() {
-        assertFalse(servicio.cambiarEstadoTarea("Fantasma", EstadoTarea.COMPLETADA));
+        assertFalse(servicio.cambiarEstadoTarea("Fantasma", EstadoTarea.COMPLETADA, null).isExito());
     }
 
     @Test
@@ -142,7 +142,7 @@ class ServicioMetasTest {
 
         assertEquals(0, servicio.buscarMeta("Meta 1").calcularProgreso());
 
-        servicio.cambiarEstadoTarea("Tarea 1", EstadoTarea.COMPLETADA);
+        servicio.cambiarEstadoTarea("Tarea 1", EstadoTarea.COMPLETADA, null);
 
         assertEquals(50, servicio.buscarMeta("Meta 1").calcularProgreso());
     }
@@ -254,7 +254,7 @@ class ServicioMetasTest {
 
         servicio.actualizarEstadosVencidos();
 
-        assertEquals(EstadoTarea.FUERA_DE_PLAZO, tarea.getEstado());
+        assertEquals(EstadoEntrega.FUERA_DE_PLAZO, tarea.getEstadoEntrega());
     }
 
     @Test
@@ -282,6 +282,98 @@ class ServicioMetasTest {
 
         assertEquals(EstadoTarea.PENDIENTE, tarea.getEstado());
     }
+
+    // --- Tarea D-1: meta con nombre vacío o solo espacios ---
+
+    @Test
+    @DisplayName("Agregar una meta con nombre vacío falla y no queda agregada")
+    void testAgregarMetaNombreVacioFalla() {
+        assertFalse(servicio.agregarMeta(""));
+        assertTrue(servicio.getMetas().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Agregar una meta con nombre compuesto solo por espacios falla y no queda agregada")
+    void testAgregarMetaNombreSoloEspaciosFalla() {
+        assertFalse(servicio.agregarMeta("   "));
+        assertTrue(servicio.getMetas().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Agregar una meta con nombre null falla y no queda agregada")
+    void testAgregarMetaNombreNullFalla() {
+        assertFalse(servicio.agregarMeta(null));
+        assertTrue(servicio.getMetas().isEmpty());
+    }
+
+    // --- Tareas D-2 y D-3: fechas de inicio y término no anteriores a hoy ---
+
+    @Test
+    @DisplayName("Agregar una tarea con fecha de inicio anterior a hoy falla y no queda agregada")
+    void testAgregarTareaFechaInicioAnteriorAHoyFalla() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea con inicio pasado", "Descripción", usuarioDePrueba,
+                LocalDate.now().minusDays(1), LocalDate.now().plusDays(5), EstadoTarea.PENDIENTE);
+
+        assertFalse(servicio.agregarTareaAMeta("Meta 1", tarea));
+        assertEquals(0, servicio.buscarMeta("Meta 1").getTareas().size());
+    }
+
+    @Test
+    @DisplayName("Agregar una tarea con fecha de término anterior a hoy falla y no queda agregada")
+    void testAgregarTareaFechaTerminoAnteriorAHoyFalla() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea con término pasado", "Descripción", usuarioDePrueba,
+                LocalDate.now(), LocalDate.now().minusDays(1), EstadoTarea.PENDIENTE);
+
+        assertFalse(servicio.agregarTareaAMeta("Meta 1", tarea));
+        assertEquals(0, servicio.buscarMeta("Meta 1").getTareas().size());
+    }
+
+    @Test
+    @DisplayName("Agregar una tarea con fecha de inicio y término iguales a hoy tiene éxito")
+    void testAgregarTareaFechasIgualesAHoyExitosa() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea con fechas de hoy", "Descripción", usuarioDePrueba,
+                LocalDate.now(), LocalDate.now(), EstadoTarea.PENDIENTE);
+
+        assertTrue(servicio.agregarTareaAMeta("Meta 1", tarea));
+        assertEquals(1, servicio.buscarMeta("Meta 1").getTareas().size());
+    }
+
+    @Test
+    @DisplayName("Actualizar las fechas con nueva fecha de término anterior a hoy falla")
+    void testActualizarFechasTareaTerminoAnteriorAHoyFalla() {
+        servicio.agregarMeta("Meta 1");
+        Tarea tarea = new Tarea("Tarea 1", "Descripción de la tarea 1", usuarioDePrueba,
+                LocalDate.now(), LocalDate.now().plusDays(5), EstadoTarea.PENDIENTE);
+        servicio.agregarTareaAMeta("Meta 1", tarea);
+
+        LocalDate nuevaInicio = LocalDate.now().minusDays(5);
+        LocalDate nuevaTerminoAnteriorAHoy = LocalDate.now().minusDays(2);
+
+        assertFalse(servicio.actualizarFechasTarea("Tarea 1", nuevaInicio, nuevaTerminoAnteriorAHoy));
+        assertEquals(LocalDate.now(), tarea.getFechaInicio());
+        assertEquals(LocalDate.now().plusDays(5), tarea.getFechaTermino());
+    }
+
+    // --- Tests unitarios directos para ValidadorFecha.esFechaNoAnteriorAHoy() ---
+
+    @Test
+    @DisplayName("esFechaNoAnteriorAHoy retorna false para una fecha pasada")
+    void testEsFechaNoAnteriorAHoyConFechaPasada() {
+        assertFalse(ValidadorFecha.esFechaNoAnteriorAHoy(LocalDate.now().minusDays(1)));
+    }
+
+    @Test
+    @DisplayName("esFechaNoAnteriorAHoy retorna true para la fecha de hoy")
+    void testEsFechaNoAnteriorAHoyConFechaDeHoy() {
+        assertTrue(ValidadorFecha.esFechaNoAnteriorAHoy(LocalDate.now()));
+    }
+
+    @Test
+    @DisplayName("esFechaNoAnteriorAHoy retorna true para una fecha futura")
+    void testEsFechaNoAnteriorAHoyConFechaFutura() {
+        assertTrue(ValidadorFecha.esFechaNoAnteriorAHoy(LocalDate.now().plusDays(1)));
+    }
 }
-
-
