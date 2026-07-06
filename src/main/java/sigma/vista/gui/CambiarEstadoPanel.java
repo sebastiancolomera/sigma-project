@@ -96,14 +96,9 @@ public class CambiarEstadoPanel extends JPanel {
         for (Meta meta : controlador.getMetas()) {
             for (Tarea tarea : meta.getTareas()) {
                 if (tarea.getTitulo().equals(titulo)) {
-                    String estadoEntrega = "Sin definir";
-                    try {
-                        java.lang.reflect.Method m = tarea.getClass().getMethod("getEstadoEntrega");
-                        Object resultado = m.invoke(tarea);
-                        estadoEntrega = resultado != null ? resultado.toString() : "Sin definir";
-                    } catch (Exception e) {
-                        estadoEntrega = "No disponible";
-                    }
+                    String estadoEntrega = tarea.getEstadoEntrega() != null
+                            ? tarea.getEstadoEntrega().toString()
+                            : "Sin definir";
                     lblEstadoEntrega.setText(estadoEntrega);
                     return;
                 }
