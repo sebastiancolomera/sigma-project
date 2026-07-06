@@ -80,6 +80,20 @@ public class GestionTareasPanel extends JPanel {
             LocalDate fechaInicio = LocalDate.of(anioIni, mesIni, diaIni);
             LocalDate fechaTermino = LocalDate.of(anioFin, mesFin, diaFin);
 
+            if (!ValidadorFecha.esFechaNoAnteriorAHoy(fechaInicio)) {
+                JOptionPane.showMessageDialog(this,
+                        "La fecha de inicio no puede ser anterior a la fecha actual.",
+                        "Fecha inválida", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            if (!ValidadorFecha.esFechaNoAnteriorAHoy(fechaTermino)) {
+                JOptionPane.showMessageDialog(this,
+                        "La fecha de término no puede ser anterior a la fecha actual.",
+                        "Fecha inválida", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
             if (fechaTermino.isBefore(fechaInicio)) {
                 JOptionPane.showMessageDialog(this,
                         "La fecha de término no puede ser anterior a la de inicio.",

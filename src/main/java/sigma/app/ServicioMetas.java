@@ -88,6 +88,8 @@ public class ServicioMetas {
 
     public boolean agregarTareaAMeta(String nombreMeta, Tarea tarea) {
         if (tarea == null || tarea.getTitulo() == null || tarea.getTitulo().isBlank()) return false;
+        if (tarea.getFechaInicio() == null || !ValidadorFecha.esFechaNoAnteriorAHoy(tarea.getFechaInicio())) return false;
+        if (tarea.getFechaTermino() == null || !ValidadorFecha.esFechaNoAnteriorAHoy(tarea.getFechaTermino())) return false;
         Meta meta = buscarMeta(nombreMeta);
         if (meta == null) return false;
         if (existeTareaConTitulo(tarea.getTitulo())) return false;
@@ -154,6 +156,7 @@ public class ServicioMetas {
     public boolean actualizarFechasTarea(String titulo, LocalDate nuevaInicio, LocalDate nuevaTermino) {
         if (titulo == null || nuevaInicio == null || nuevaTermino == null) return false;
         if (nuevaTermino.isBefore(nuevaInicio)) return false;
+        if (!ValidadorFecha.esFechaNoAnteriorAHoy(nuevaTermino)) return false;
         for (Meta meta : metas) {
             for (Tarea tarea : meta.getTareas()) {
                 if (tarea.getTitulo().equals(titulo)) {
