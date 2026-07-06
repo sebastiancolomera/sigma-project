@@ -74,8 +74,9 @@ public class ServicioMetas {
 
     public boolean agregarMeta(String nombre) {
         if (nombre == null || nombre.isBlank()) return false;
-        if (buscarMeta(nombre) != null) return false;
-        metas.add(new Meta(nombre));
+        String nombreNormalizado = nombre.trim();
+        if (buscarMeta(nombreNormalizado) != null) return false;
+        metas.add(new Meta(nombreNormalizado));
         guardar();
         return true;
     }
