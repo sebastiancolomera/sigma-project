@@ -119,4 +119,75 @@ class GestorSigmaTest {
         assertEquals(LocalDate.of(2026, 5, 10), sinCambios.getFechaTermino());
     }
 
+    @Test
+    @DisplayName("registrarUsuario rechaza nombre vacío")
+    void testRegistrarUsuarioNombreVacio() {
+        boolean resultado = gestor.registrarUsuario("", "pass123", RolUsuario.USUARIO);
+        assertFalse(resultado);
+    }
+
+    @Test
+    @DisplayName("registrarUsuario rechaza nombre con solo espacios")
+    void testRegistrarUsuarioNombreSoloEspacios() {
+        boolean resultado = gestor.registrarUsuario("   ", "pass123", RolUsuario.USUARIO);
+        assertFalse(resultado);
+    }
+
+    @Test
+    @DisplayName("registrarUsuario rechaza contraseña vacía")
+    void testRegistrarUsuarioContrasenaVacia() {
+        boolean resultado = gestor.registrarUsuario("juan", "", RolUsuario.USUARIO);
+        assertFalse(resultado);
+    }
+
+    @Test
+    @DisplayName("registrarUsuario rechaza contraseña con solo espacios")
+    void testRegistrarUsuarioContrasenaSoloEspacios() {
+        boolean resultado = gestor.registrarUsuario("juan", "   ", RolUsuario.USUARIO);
+        assertFalse(resultado);
+    }
+
+    @Test
+    @DisplayName("agregarMeta rechaza nombre vacío")
+    void testAgregarMetaNombreVacio() {
+        boolean resultado = gestor.agregarMeta("");
+        assertFalse(resultado);
+    }
+
+    @Test
+    @DisplayName("agregarMeta rechaza nombre con solo espacios")
+    void testAgregarMetaNombreSoloEspacios() {
+        boolean resultado = gestor.agregarMeta("   ");
+        assertFalse(resultado);
+    }
+
+    @Test
+    @DisplayName("agregarTareaAMeta rechaza fecha de inicio anterior a hoy")
+    void testAgregarTareaConFechaInicioAnterior() {
+        gestor.agregarMeta("Meta Test");
+        gestor.registrarUsuario("juan", "pass123", RolUsuario.USUARIO);
+        Usuario usuario = gestor.autenticarUsuario("juan", "pass123");
+
+        Tarea tarea = new Tarea("Tarea antigua", "Desc",
+                usuario, LocalDate.of(2020, 1, 1),
+                LocalDate.of(2020, 1, 31), EstadoTarea.PENDIENTE);
+
+        boolean resultado = gestor.agregarTareaAMeta("Meta Test", tarea);
+        assertFalse(resultado);
+    }
+
+    @Test
+    @DisplayName("agregarTareaAMeta rechaza fecha de término anterior a hoy")
+    void testAgregarTareaConFechaTerminoAnterior() {
+        gestor.agregarMeta("Meta Test");
+        gestor.registrarUsuario("juan", "pass123", RolUsuario.USUARIO);
+        Usuario usuario = gestor.autenticarUsuario("juan", "pass123");
+
+        Tarea tarea = new Tarea("Tarea con término antiguo", "Desc",
+                usuario, LocalDate.now().plusDays(1),
+                LocalDate.now().minusDays(1), EstadoTarea.PENDIENTE);
+
+        boolean resultado = gestor.agregarTareaAMeta("Meta Test", tarea);
+        assertFalse(resultado);
+    }
 }

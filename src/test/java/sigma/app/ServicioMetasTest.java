@@ -283,8 +283,6 @@ class ServicioMetasTest {
         assertEquals(EstadoTarea.PENDIENTE, tarea.getEstado());
     }
 
-    // --- Tarea D-1: meta con nombre vacío o solo espacios ---
-
     @Test
     @DisplayName("Agregar una meta con nombre vacío falla y no queda agregada")
     void testAgregarMetaNombreVacioFalla() {
@@ -305,8 +303,6 @@ class ServicioMetasTest {
         assertFalse(servicio.agregarMeta(null));
         assertTrue(servicio.getMetas().isEmpty());
     }
-
-    // --- Tareas D-2 y D-3: fechas de inicio y término no anteriores a hoy ---
 
     @Test
     @DisplayName("Agregar una tarea con fecha de inicio anterior a hoy falla y no queda agregada")
@@ -356,8 +352,6 @@ class ServicioMetasTest {
         assertEquals(LocalDate.now(), tarea.getFechaInicio());
         assertEquals(LocalDate.now().plusDays(5), tarea.getFechaTermino());
     }
-
-    // --- Tests unitarios directos para ValidadorFecha.esFechaNoAnteriorAHoy() ---
 
     @Test
     @DisplayName("esFechaNoAnteriorAHoy retorna false para una fecha pasada")

@@ -8,8 +8,8 @@ import sigma.modelo.Usuario;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VerTareasDialog extends JDialog {
 
@@ -42,17 +42,7 @@ public class VerTareasDialog extends JDialog {
                     fila[0] = tarea.getTitulo() != null ? tarea.getTitulo() : "Sin título";
                     fila[1] = meta.getNombre();
                     fila[2] = tarea.getEstado() != null ? tarea.getEstado().toString() : "Sin estado";
-
-                    String estadoEntrega = "Sin definir";
-                    try {
-                        java.lang.reflect.Method m = tarea.getClass().getMethod("getEstadoEntrega");
-                        Object resultado = m.invoke(tarea);
-                        estadoEntrega = resultado != null ? resultado.toString() : "Sin definir";
-                    } catch (Exception e) {
-                        estadoEntrega = "No disponible";
-                    }
-                    fila[3] = estadoEntrega;
-
+                    fila[3] = tarea.getEstadoEntrega() != null ? tarea.getEstadoEntrega().toString() : "Sin definir";
                     fila[4] = tarea.getFechaInicio() != null ? tarea.getFechaInicio().toString() : "Sin fecha";
                     fila[5] = tarea.getFechaTermino() != null ? tarea.getFechaTermino().toString() : "Sin fecha";
                     model.addRow(fila);
@@ -71,5 +61,56 @@ public class VerTareasDialog extends JDialog {
         btnCerrar.addActionListener(e -> dispose());
         btnPanel.add(btnCerrar);
         add(btnPanel, BorderLayout.SOUTH);
+    }
+
+    public static void showDialog(JFrame parent, GestorSigma controlador) {
+        List<Usuario> usuarios = controlador.getUsuarios().stream()
+                .filter(u -> !u.esSuperusuario())
+                .collect(Collectors.toList());
+
+        if (usuarios.isEmpty()) {
+            JOptionPane.showMessageDialog(parent,
+                    "No hay usuarios disponibles para ver sus tareas.",
+                    "Sin usuarios",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        String[] opciones = usuarios.stream()
+                .map(u -> u.getNombre() + " — " + u.getRol())
+                .toArray(String[]::new);
+
+        String seleccion = (String) JOptionPane.showInputDialog(
+                parent,
+                "Seleccione el usuario para ver sus tareas:",
+                "Ver Tareas por Usuario",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opciones,
+                opciones[0]
+        );
+
+        if (seleccion == null) return;
+
+        String nombreUsuario = seleccion.split(" — ")[0];
+        Usuario seleccionado = controlador.getUsuarios().stream()
+                .filter(u -> u.getNombre().equals(nombreUsuario))
+                .findFirst()
+                .orElse(null);
+
+        if (seleccionado == null) {
+            JOptionPane.showMessageDialog(parent, "Usuario no encontrado.");
+            return;
+        }
+
+        if (controlador.getTareasDeUsuario(seleccionado).isEmpty()) {
+            JOptionPane.showMessageDialog(parent,
+                    "El usuario " + seleccionado.getNombre() + " no tiene tareas asignadas.",
+                    "Sin tareas",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        new VerTareasDialog(parent, controlador, seleccionado).setVisible(true);
     }
 }

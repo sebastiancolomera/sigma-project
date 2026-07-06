@@ -144,14 +144,20 @@ class MetaTest {
     void testCalcularProgresoIgnoraOtrosEstados() {
         Meta meta = new Meta("Meta");
         Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, EstadoTarea.COMPLETADA);
-        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, EstadoTarea.POSTERGADA);
-        Tarea tarea3 = new Tarea("T3", "D3", usuario, fechaInicio, fechaTermino, EstadoTarea.FUERA_DE_PLAZO);
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, EstadoTarea.EN_PROCESO);
+        Tarea tarea3 = new Tarea("T3", "D3", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
 
         meta.agregarTarea(tarea1);
         meta.agregarTarea(tarea2);
         meta.agregarTarea(tarea3);
 
-        // Solo 1 de 3 tareas COMPLETADA = 33% (redondea a 33)
         assertEquals(33, meta.calcularProgreso());
+    }
+
+    @Test
+    @DisplayName("Debería calcular 0% de progreso cuando no tiene tareas")
+    void testCalcularProgresoSinTareas() {
+        Meta meta = new Meta("Meta sin tareas");
+        assertEquals(0, meta.calcularProgreso());
     }
 }
