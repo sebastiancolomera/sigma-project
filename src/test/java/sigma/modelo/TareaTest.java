@@ -95,12 +95,6 @@ class TareaTest {
         tarea.setEstado(EstadoTarea.EN_PROCESO);
         assertEquals(EstadoTarea.EN_PROCESO, tarea.getEstado());
 
-        tarea.setEstado(EstadoTarea.POSTERGADA);
-        assertEquals(EstadoTarea.POSTERGADA, tarea.getEstado());
-
-        tarea.setEstado(EstadoTarea.FUERA_DE_PLAZO);
-        assertEquals(EstadoTarea.FUERA_DE_PLAZO, tarea.getEstado());
-
         tarea.setEstado(EstadoTarea.PENDIENTE);
         assertEquals(EstadoTarea.PENDIENTE, tarea.getEstado());
     }
@@ -111,5 +105,12 @@ class TareaTest {
         Tarea tarea = new Tarea();
         tarea.setEstado(EstadoTarea.COMPLETADA);
         assertEquals("COMPLETADA", tarea.getEstado().toString());
+    }
+
+    @Test
+    @DisplayName("Debería obtener el estado de entrega correctamente")
+    void testGetEstadoEntrega() {
+        Tarea tarea = new Tarea("Titulo", "Desc", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
+        assertNotNull(tarea.getEstadoEntrega());
     }
 }
