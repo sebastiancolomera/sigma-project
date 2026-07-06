@@ -38,12 +38,6 @@ public class GestorJSON {
         builder.registerTypeAdapter(EstadoTarea.class,
                 (JsonDeserializer<EstadoTarea>) (json, type, ctx) -> {
                     String val = json.getAsString().toUpperCase().trim();
-                    return EstadoTarea.valueOf(val);
-                });
-
-        builder.registerTypeAdapter(EstadoTarea.class,
-                (JsonDeserializer<EstadoTarea>) (json, type, ctx) -> {
-                    String val = json.getAsString().toUpperCase().trim();
                     switch (val) {
                         case "POSTERGADA":
                             return EstadoTarea.PENDIENTE;
