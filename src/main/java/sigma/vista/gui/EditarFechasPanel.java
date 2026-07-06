@@ -150,6 +150,13 @@ public class EditarFechasPanel extends JPanel {
         LocalDate nuevaFechaInicio = LocalDate.of(anioIni, mesIni, diaIni);
         LocalDate nuevaFechaTermino = LocalDate.of(anioFin, mesFin, diaFin);
 
+        if (!ValidadorFecha.esFechaNoAnteriorAHoy(nuevaFechaTermino)) {
+            JOptionPane.showMessageDialog(this,
+                    "La fecha de término no puede ser anterior a la fecha actual.",
+                    "Fecha inválida", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         boolean exito = controlador.actualizarFechasTarea(titulo, nuevaFechaInicio, nuevaFechaTermino);
 
         if (exito) {
