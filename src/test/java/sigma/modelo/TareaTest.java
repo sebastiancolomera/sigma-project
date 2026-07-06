@@ -110,7 +110,8 @@ class TareaTest {
     @Test
     @DisplayName("Debería obtener el estado de entrega correctamente")
     void testGetEstadoEntrega() {
-        Tarea tarea = new Tarea("Titulo", "Desc", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
+        Tarea tarea = new Tarea("Titulo", "Desc", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.PENDIENTE);
         assertNotNull(tarea.getEstadoEntrega());
     }
 }

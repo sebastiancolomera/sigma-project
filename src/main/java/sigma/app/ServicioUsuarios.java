@@ -5,8 +5,9 @@ import sigma.modelo.Usuario;
 import sigma.persistencia.GestorJSON;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ServicioUsuarios {
@@ -14,6 +15,8 @@ public class ServicioUsuarios {
     private final GestorJSON gestorJSON;
     private final String rutaArchivo;
     private ArrayList<Usuario> usuarios = new ArrayList<>();
+    private boolean dirty;
+    private final Map<String, Usuario> indiceUsuarios = new HashMap<>();
 
     public ServicioUsuarios(GestorJSON gestorJSON, String rutaArchivo) {
         this.gestorJSON = gestorJSON;
@@ -22,14 +25,37 @@ public class ServicioUsuarios {
 
     public void cargar() {
         this.usuarios = gestorJSON.cargarUsuarios(rutaArchivo);
+        for (Usuario u : usuarios) {
+            if (!u.getContrasena().contains(":")) {
+                u.setContrasena(SeguridadUtil.hashPassword(u.getContrasena()));
+                marcarDirty();
+            }
+        }
+        reindexar();
+    }
+
+    private void marcarDirty() {
+        this.dirty = true;
+    }
+
+    private void reindexar() {
+        indiceUsuarios.clear();
+        for (Usuario u : usuarios) {
+            indiceUsuarios.put(u.getNombre().toLowerCase(), u);
+        }
     }
 
     public boolean guardar() {
-        return gestorJSON.guardarUsuarios(usuarios, rutaArchivo);
+        if (!dirty) return true;
+        boolean ok = gestorJSON.guardarUsuarios(usuarios, rutaArchivo);
+        if (ok) dirty = false;
+        return ok;
     }
 
     public void resetear() {
         this.usuarios = new ArrayList<>();
+        indiceUsuarios.clear();
+        marcarDirty();
     }
 
     public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
@@ -37,15 +63,17 @@ public class ServicioUsuarios {
             return false;
         }
 
-        String nombreNormalizado = nombre.trim();
+        String nombreNormalizado = nombre.trim().toLowerCase();
 
-        boolean existe = usuarios.stream()
-                .anyMatch(u -> u.getNombre().equalsIgnoreCase(nombreNormalizado));
-        if (existe) {
+        if (indiceUsuarios.containsKey(nombreNormalizado)) {
             return false;
         }
 
-        usuarios.add(new Usuario(nombreNormalizado, contrasena, rol));
+        String hash = SeguridadUtil.hashPassword(contrasena);
+        Usuario usuario = new Usuario(nombre.trim(), hash, rol);
+        usuarios.add(usuario);
+        indiceUsuarios.put(nombreNormalizado, usuario);
+        marcarDirty();
         return true;
     }
 
@@ -53,27 +81,34 @@ public class ServicioUsuarios {
         if (nombre == null || contrasena == null) {
             return null;
         }
-        return usuarios.stream()
-                .filter(u -> u.getNombre().equalsIgnoreCase(nombre) && u.getContrasena().equals(contrasena))
-                .findFirst()
-                .orElse(null);
+        Usuario u = indiceUsuarios.get(nombre.toLowerCase());
+        if (u != null && SeguridadUtil.verificarPassword(contrasena, u.getContrasena())) {
+            return u;
+        }
+        return null;
     }
 
     public ResultadoOperacion actualizarRol(String nombreUsuario, RolUsuario nuevoRol, Usuario ejecutor) {
-        Optional<Usuario> objetivo = usuarios.stream()
-                .filter(u -> u.getNombre().equalsIgnoreCase(nombreUsuario))
-                .findFirst();
+        if (nombreUsuario == null || nuevoRol == null) {
+            return new ResultadoOperacion(false, "Datos inválidos.");
+        }
 
-        if (objetivo.isEmpty()) {
+        Usuario objetivo = indiceUsuarios.get(nombreUsuario.toLowerCase());
+        if (objetivo == null) {
             return new ResultadoOperacion(false, "El usuario indicado no existe.");
         }
 
-        objetivo.get().setRol(nuevoRol);
+        objetivo.setRol(nuevoRol);
+        marcarDirty();
         return new ResultadoOperacion(true, "Rol actualizado correctamente.");
     }
 
     public boolean eliminarUsuario(String nombreUsuario) {
-        return usuarios.removeIf(u -> u.getNombre().equalsIgnoreCase(nombreUsuario));
+        Usuario u = indiceUsuarios.remove(nombreUsuario.toLowerCase());
+        if (u == null) return false;
+        usuarios.remove(u);
+        marcarDirty();
+        return true;
     }
 
     public List<Usuario> getUsuarios() {

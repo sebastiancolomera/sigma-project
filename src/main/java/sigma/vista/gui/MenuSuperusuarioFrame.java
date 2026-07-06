@@ -22,7 +22,7 @@ public class MenuSuperusuarioFrame extends JFrame {
     }
 
     private void inicializarComponentes() {
-        setTitle("SIGMA - Menú Superusuario");
+        setTitle("SIGMA - Menú Superusuario (" + usuarioActual.getNombre() + ")");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(420, 360);
         setLocationRelativeTo(null);
@@ -124,9 +124,20 @@ public class MenuSuperusuarioFrame extends JFrame {
             return;
         }
 
-        Usuario seleccionado = (Usuario) JOptionPane.showInputDialog(
+        String[] opciones = eliminables.stream()
+                .map(u -> u.getNombre() + " — " + u.getRol())
+                .toArray(String[]::new);
+
+        String seleccionStr = (String) JOptionPane.showInputDialog(
                 this, "Selecciona el usuario a eliminar:", "Eliminar Usuario",
-                JOptionPane.QUESTION_MESSAGE, null, eliminables.toArray(), eliminables.get(0));
+                JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+
+        if (seleccionStr == null) return;
+        String nombreSeleccion = seleccionStr.split(" — ")[0];
+        Usuario seleccionado = eliminables.stream()
+                .filter(u -> u.getNombre().equals(nombreSeleccion))
+                .findFirst()
+                .orElse(null);
 
         if (seleccionado == null) {
             return;
@@ -154,12 +165,21 @@ public class MenuSuperusuarioFrame extends JFrame {
             return;
         }
 
-        Usuario seleccionado = (Usuario) JOptionPane.showInputDialog(
+        String[] opciones = objetivos.stream()
+                .map(u -> u.getNombre() + " — " + u.getRol())
+                .toArray(String[]::new);
+
+        String seleccionStr = (String) JOptionPane.showInputDialog(
                 this, "Selecciona el usuario:", "Cambiar Rol",
-                JOptionPane.QUESTION_MESSAGE, null, objetivos.toArray(), objetivos.get(0));
-        if (seleccionado == null) {
-            return;
-        }
+                JOptionPane.QUESTION_MESSAGE, null, opciones, opciones[0]);
+        if (seleccionStr == null) return;
+
+        String nombreSeleccion = seleccionStr.split(" — ")[0];
+        Usuario seleccionado = objetivos.stream()
+                .filter(u -> u.getNombre().equals(nombreSeleccion))
+                .findFirst()
+                .orElse(null);
+        if (seleccionado == null) return;
 
         RolUsuario nuevoRol = (RolUsuario) JOptionPane.showInputDialog(
                 this, "Nuevo rol para " + seleccionado.getNombre() + ":", "Cambiar Rol",
@@ -187,10 +207,11 @@ public class MenuSuperusuarioFrame extends JFrame {
         gestorSigma.resetearSistema();
 
         JOptionPane.showMessageDialog(this,
-                "El sistema fue reseteado correctamente. Debe iniciar sesión nuevamente.",
+                "El sistema fue reseteado correctamente. Debe registrar un nuevo SuperUsuario.",
                 "Sistema Reseteado", JOptionPane.INFORMATION_MESSAGE);
 
         dispose();
+        new RegistroSuperusuarioDialog(gestorSigma).setVisible(true);
         new LoginFrame(gestorSigma).setVisible(true);
     }
 

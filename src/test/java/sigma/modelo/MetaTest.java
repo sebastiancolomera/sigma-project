@@ -42,7 +42,8 @@ class MetaTest {
     @DisplayName("Debería crear una meta con nombre y lista de tareas")
     void testConstructorConNombreYTareas() {
         ArrayList<Tarea> tareas = new ArrayList<>();
-        Tarea tarea1 = new Tarea("Tarea 1", "Desc 1", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
+        Tarea tarea1 = new Tarea("Tarea 1", "Desc 1", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.PENDIENTE);
         tareas.add(tarea1);
 
         Meta meta = new Meta("Proyecto", tareas);
@@ -55,7 +56,8 @@ class MetaTest {
     @DisplayName("Debería agregar una tarea correctamente")
     void testAgregarTarea() {
         Meta meta = new Meta("Meta");
-        Tarea tarea = new Tarea("Tarea 1", "Desc", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
+        Tarea tarea = new Tarea("Tarea 1", "Desc", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.PENDIENTE);
 
         meta.agregarTarea(tarea);
 
@@ -67,8 +69,10 @@ class MetaTest {
     @DisplayName("Debería eliminar una tarea correctamente")
     void testEliminarTarea() {
         Meta meta = new Meta("Meta");
-        Tarea tarea1 = new Tarea("Tarea 1", "Desc1", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
-        Tarea tarea2 = new Tarea("Tarea 2", "Desc2", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
+        Tarea tarea1 = new Tarea("Tarea 1", "Desc1", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.PENDIENTE);
+        Tarea tarea2 = new Tarea("Tarea 2", "Desc2", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.PENDIENTE);
 
         meta.agregarTarea(tarea1);
         meta.agregarTarea(tarea2);
@@ -101,7 +105,8 @@ class MetaTest {
     void testCalcularProgresoCeroPorciento() {
         Meta meta = new Meta("Meta");
         Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
-        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, EstadoTarea.EN_PROCESO);
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.EN_PROCESO);
 
         meta.agregarTarea(tarea1);
         meta.agregarTarea(tarea2);
@@ -113,8 +118,10 @@ class MetaTest {
     @DisplayName("Debería calcular 100% de progreso cuando todas las tareas están COMPLETADA")
     void testCalcularProgresoCienPorciento() {
         Meta meta = new Meta("Meta");
-        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, EstadoTarea.COMPLETADA);
-        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, EstadoTarea.COMPLETADA);
+        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.COMPLETADA);
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.COMPLETADA);
 
         meta.agregarTarea(tarea1);
         meta.agregarTarea(tarea2);
@@ -126,10 +133,14 @@ class MetaTest {
     @DisplayName("Debería calcular progreso parcial correctamente")
     void testCalcularProgresoParcial() {
         Meta meta = new Meta("Meta");
-        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, EstadoTarea.COMPLETADA);
-        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
-        Tarea tarea3 = new Tarea("T3", "D3", usuario, fechaInicio, fechaTermino, EstadoTarea.COMPLETADA);
-        Tarea tarea4 = new Tarea("T4", "D4", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
+        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.COMPLETADA);
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.PENDIENTE);
+        Tarea tarea3 = new Tarea("T3", "D3", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.COMPLETADA);
+        Tarea tarea4 = new Tarea("T4", "D4", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.PENDIENTE);
 
         meta.agregarTarea(tarea1);
         meta.agregarTarea(tarea2);
@@ -143,8 +154,10 @@ class MetaTest {
     @DisplayName("Debería ignorar estados diferentes a COMPLETADA en el cálculo")
     void testCalcularProgresoIgnoraOtrosEstados() {
         Meta meta = new Meta("Meta");
-        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino, EstadoTarea.COMPLETADA);
-        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino, EstadoTarea.EN_PROCESO);
+        Tarea tarea1 = new Tarea("T1", "D1", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.COMPLETADA);
+        Tarea tarea2 = new Tarea("T2", "D2", usuario, fechaInicio, fechaTermino,
+                EstadoTarea.EN_PROCESO);
         Tarea tarea3 = new Tarea("T3", "D3", usuario, fechaInicio, fechaTermino, EstadoTarea.PENDIENTE);
 
         meta.agregarTarea(tarea1);
