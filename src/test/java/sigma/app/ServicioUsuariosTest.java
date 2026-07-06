@@ -19,10 +19,12 @@ class ServicioUsuariosTest {
     Path tempDir;
 
     private ServicioUsuarios servicio;
+    private Usuario admin;
 
     @BeforeEach
     void setUp() {
         servicio = new ServicioUsuarios(new GestorJSON(), tempDir.resolve("usuarios.json").toString());
+        admin = new Usuario("admin", "gatomiau", RolUsuario.SUPERUSUARIO);
     }
 
     @Test
@@ -62,6 +64,24 @@ class ServicioUsuariosTest {
     }
 
     @Test
+    @DisplayName("Registrar un usuario con contraseña vacía falla")
+    void testRegistrarUsuarioContrasenaVacia() {
+        assertFalse(servicio.registrarUsuario("maria", "", RolUsuario.USUARIO));
+    }
+
+    @Test
+    @DisplayName("Registrar un usuario con contraseña de solo espacios falla")
+    void testRegistrarUsuarioContrasenaSoloEspacios() {
+        assertFalse(servicio.registrarUsuario("maria", "   ", RolUsuario.USUARIO));
+    }
+
+    @Test
+    @DisplayName("Registrar un usuario con contraseña null falla")
+    void testRegistrarUsuarioContrasenaNull() {
+        assertFalse(servicio.registrarUsuario("maria", null, RolUsuario.USUARIO));
+    }
+
+    @Test
     @DisplayName("Autenticar un usuario existente con credenciales correctas tiene éxito")
     void testAutenticarUsuarioExitoso() {
         servicio.registrarUsuario("pedro", "clave123", RolUsuario.USUARIO);
@@ -87,7 +107,10 @@ class ServicioUsuariosTest {
     @DisplayName("Actualizar el rol de un usuario existente tiene éxito (equalsIgnoreCase)")
     void testActualizarRolExitoso() {
         servicio.registrarUsuario("pedro", "clave123", RolUsuario.USUARIO);
-        assertTrue(servicio.actualizarRol("PEDRO", RolUsuario.LIDER));
+
+        ResultadoOperacion resultado = servicio.actualizarRol("PEDRO", RolUsuario.LIDER, admin);
+        assertTrue(resultado.isExito());
+
         Usuario u = servicio.autenticarUsuario("pedro", "clave123");
         assertEquals(RolUsuario.LIDER, u.getRol());
     }
@@ -95,7 +118,8 @@ class ServicioUsuariosTest {
     @Test
     @DisplayName("Actualizar el rol de un usuario inexistente falla")
     void testActualizarRolUsuarioInexistente() {
-        assertFalse(servicio.actualizarRol("fantasma", RolUsuario.LIDER));
+        ResultadoOperacion resultado = servicio.actualizarRol("fantasma", RolUsuario.LIDER, admin);
+        assertFalse(resultado.isExito());
     }
 
     @Test
