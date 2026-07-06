@@ -7,152 +7,205 @@ import sigma.modelo.Usuario;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 import java.util.List;
 
 public class MenuSuperusuarioFrame extends JFrame {
 
-    private final GestorSigma controlador;
+    private final GestorSigma gestorSigma;
     private final Usuario usuarioActual;
 
-    public MenuSuperusuarioFrame(GestorSigma controlador, Usuario usuarioActual) {
-        this.controlador = controlador;
+    public MenuSuperusuarioFrame(GestorSigma gestorSigma, Usuario usuarioActual) {
+        this.gestorSigma = gestorSigma;
         this.usuarioActual = usuarioActual;
+        inicializarComponentes();
+    }
+
+    private void inicializarComponentes() {
         setTitle("SIGMA - Menú Superusuario");
-        setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(5, 1, 10, 10));
+        setSize(420, 360);
+        setLocationRelativeTo(null);
+        setResizable(false);
 
-        JButton btnRegistrar = new JButton("Registrar Usuario");
-        JButton btnEliminar = new JButton("Eliminar Usuario");
-        JButton btnCambiarRol = new JButton("Cambiar Rol");
-        JButton btnReset = new JButton("Resetear Sistema");
-        JButton btnCerrar = new JButton("Cerrar sesión");
+        JPanel panelPrincipal = new JPanel();
+        panelPrincipal.setLayout(new BoxLayout(panelPrincipal, BoxLayout.Y_AXIS));
+        panelPrincipal.setBorder(BorderFactory.createEmptyBorder(24, 40, 24, 40));
 
-        btnRegistrar.addActionListener(e -> {
-            String nombre = JOptionPane.showInputDialog(this, "Nombre del usuario:");
-            if (nombre == null) return;
-            String contrasena = JOptionPane.showInputDialog(this, "Contraseña:");
-            if (contrasena == null) return;
-            RolUsuario[] roles = RolUsuario.values();
-            RolUsuario rol = (RolUsuario) JOptionPane.showInputDialog(this, "Rol:",
-                    "Seleccionar Rol", JOptionPane.QUESTION_MESSAGE, null, roles, roles[2]);
-            if (rol == null) return;
-            boolean ok = controlador.registrarUsuario(nombre, contrasena, rol);
-            JOptionPane.showMessageDialog(this, ok ? "Usuario registrado." : "El usuario ya existe.");
-        });
+        JLabel etiquetaBienvenida = new JLabel(
+                "Bienvenido, " + usuarioActual.getNombre() + " (Superusuario)");
+        etiquetaBienvenida.setAlignmentX(Component.CENTER_ALIGNMENT);
+        etiquetaBienvenida.setFont(etiquetaBienvenida.getFont().deriveFont(Font.BOLD, 14f));
 
-        btnEliminar.addActionListener(e -> {
-            List<Usuario> usuarios = controlador.getUsuarios();
-            if (usuarios.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "No hay usuarios registrados.");
-                return;
-            }
+        JButton botonRegistrar = new JButton("Registrar Usuario");
+        JButton botonEliminar = new JButton("Eliminar Usuario");
+        JButton botonCambiarRol = new JButton("Cambiar Rol");
+        JButton botonResetear = new JButton("Resetear Sistema");
+        JButton botonCerrarSesion = new JButton("Cerrar Sesión");
 
-            String[] opciones = usuarios.stream()
-                    .map(u -> u.getNombre() + " — " + u.getRol())
-                    .toArray(String[]::new);
+        botonRegistrar.addActionListener(e -> accionRegistrarUsuario());
+        botonEliminar.addActionListener(e -> accionEliminarUsuario());
+        botonCambiarRol.addActionListener(e -> accionCambiarRol());
+        botonResetear.addActionListener(e -> accionResetearSistema());
+        botonCerrarSesion.addActionListener(e -> accionCerrarSesion());
 
-            String seleccion = (String) JOptionPane.showInputDialog(
-                    this,
-                    "Seleccione el usuario a eliminar:",
-                    "Eliminar Usuario",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    opciones,
-                    opciones[0]
-            );
+        JButton[] botones = {botonRegistrar, botonEliminar, botonCambiarRol, botonResetear, botonCerrarSesion};
+        for (JButton boton : botones) {
+            boton.setAlignmentX(Component.CENTER_ALIGNMENT);
+            boton.setMaximumSize(new Dimension(260, 36));
+        }
 
-            if (seleccion == null) return;
+        panelPrincipal.add(etiquetaBienvenida);
+        panelPrincipal.add(Box.createVerticalStrut(24));
+        panelPrincipal.add(botonRegistrar);
+        panelPrincipal.add(Box.createVerticalStrut(10));
+        panelPrincipal.add(botonEliminar);
+        panelPrincipal.add(Box.createVerticalStrut(10));
+        panelPrincipal.add(botonCambiarRol);
+        panelPrincipal.add(Box.createVerticalStrut(10));
+        panelPrincipal.add(botonResetear);
+        panelPrincipal.add(Box.createVerticalStrut(24));
+        panelPrincipal.add(botonCerrarSesion);
 
-            String nombre = seleccion.split(" — ")[0];
+        setContentPane(panelPrincipal);
+    }
 
-            if (nombre.equalsIgnoreCase(usuarioActual.getNombre())) {
-                JOptionPane.showMessageDialog(this,
-                        "No puedes eliminarte a ti mismo.",
-                        "Acción no permitida", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
+    private RolUsuario[] obtenerRolesAsignables() {
+        return Arrays.stream(RolUsuario.values())
+                .filter(r -> r != RolUsuario.SUPERUSUARIO)
+                .toArray(RolUsuario[]::new);
+    }
 
-            int confirmacion = JOptionPane.showConfirmDialog(
-                    this,
-                    "¿Está seguro de eliminar al usuario \"" + nombre + "\"?",
-                    "Confirmar Eliminación",
-                    JOptionPane.YES_NO_OPTION
-            );
+    private void accionRegistrarUsuario() {
+        JTextField campoNombre = new JTextField();
+        JPasswordField campoContrasena = new JPasswordField();
+        JComboBox<RolUsuario> comboRol = new JComboBox<>(obtenerRolesAsignables());
 
-            if (confirmacion == JOptionPane.YES_OPTION) {
-                boolean ok = controlador.eliminarUsuario(nombre);
-                JOptionPane.showMessageDialog(this, ok ? "Usuario eliminado." : "Usuario no encontrado.");
-            }
-        });
+        Object[] mensaje = {
+                "Nombre de usuario:", campoNombre,
+                "Contraseña:", campoContrasena,
+                "Rol:", comboRol
+        };
 
-        btnCambiarRol.addActionListener(e -> {
-            List<Usuario> usuarios = controlador.getUsuariosSinSuperusuario();
-            if (usuarios.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "No hay usuarios registrados.");
-                return;
-            }
+        int opcion = JOptionPane.showConfirmDialog(this, mensaje, "Registrar Usuario",
+                JOptionPane.OK_CANCEL_OPTION);
+        if (opcion != JOptionPane.OK_OPTION) {
+            return;
+        }
 
-            String[] opciones = usuarios.stream()
-                    .map(u -> u.getNombre() + " — " + u.getRol())
-                    .toArray(String[]::new);
+        String nombre = campoNombre.getText();
+        String contrasena = new String(campoContrasena.getPassword());
+        RolUsuario rol = (RolUsuario) comboRol.getSelectedItem();
 
-            String seleccion = (String) JOptionPane.showInputDialog(
-                    this,
-                    "Seleccione el usuario para cambiar su rol:",
-                    "Cambiar Rol",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    opciones,
-                    opciones[0]
-            );
+        if (nombre == null || nombre.isBlank() || contrasena == null || contrasena.isBlank()) {
+            JOptionPane.showMessageDialog(this,
+                    "El nombre de usuario y la contraseña no pueden estar vacíos ni contener solo espacios.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-            if (seleccion == null) return;
+        boolean registrado = gestorSigma.registrarUsuario(nombre, contrasena, rol);
+        if (registrado) {
+            JOptionPane.showMessageDialog(this, "Usuario registrado correctamente.",
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, "El usuario ya existe.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-            String nombre = seleccion.split(" — ")[0];
+    private void accionEliminarUsuario() {
+        List<Usuario> eliminables = gestorSigma.getUsuariosSinSuperusuario();
 
-            RolUsuario[] roles = RolUsuario.values();
-            RolUsuario nuevoRol = (RolUsuario) JOptionPane.showInputDialog(
-                    this,
-                    "Seleccione el nuevo rol para \"" + nombre + "\":",
-                    "Nuevo Rol",
-                    JOptionPane.QUESTION_MESSAGE,
-                    null,
-                    roles,
-                    roles[0]
-            );
+        if (eliminables.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No hay usuarios elegibles para eliminar (solo existe el Superusuario).",
+                    "Sin usuarios disponibles", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
 
-            if (nuevoRol == null) return;
+        Usuario seleccionado = (Usuario) JOptionPane.showInputDialog(
+                this, "Selecciona el usuario a eliminar:", "Eliminar Usuario",
+                JOptionPane.QUESTION_MESSAGE, null, eliminables.toArray(), eliminables.get(0));
 
-            ResultadoOperacion resultado = controlador.actualizarRol(nombre, nuevoRol, usuarioActual);
-            JOptionPane.showMessageDialog(this, resultado.getMensaje());
-        });
+        if (seleccionado == null) {
+            return;
+        }
 
-        btnReset.addActionListener(e -> {
-            int r = JOptionPane.showConfirmDialog(this,
-                    "¿Estás seguro de que deseas resetear el sistema? Se eliminarán todos los usuarios y metas.",
-                    "Confirmar Reseteo", JOptionPane.YES_NO_OPTION);
-            if (r == JOptionPane.YES_OPTION) this.controlador.resetearSistema();
-        });
+        boolean eliminado = gestorSigma.eliminarUsuario(seleccionado.getNombre());
+        if (eliminado) {
+            JOptionPane.showMessageDialog(this,
+                    "Usuario '" + seleccionado.getNombre() + "' eliminado correctamente.",
+                    "Éxito", JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "No fue posible eliminar al usuario indicado.",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
 
-        btnCerrar.addActionListener(e -> {
-            boolean ok = controlador.guardarDatos();
-            if (!ok) {
-                int resp = JOptionPane.showConfirmDialog(this,
-                        "No se pudieron guardar los datos correctamente.\n" +
-                                "¿Deseas cerrar sesión de todas formas?",
-                        "Error al guardar", JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE);
-                if (resp != JOptionPane.YES_OPTION) return;
-            }
-            this.dispose();
-            new LoginFrame(this.controlador).setVisible(true);
-        });
+    private void accionCambiarRol() {
+        List<Usuario> objetivos = gestorSigma.getUsuariosSinSuperusuario();
 
-        add(btnRegistrar);
-        add(btnEliminar);
-        add(btnCambiarRol);
-        add(btnReset);
-        add(btnCerrar);
+        if (objetivos.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                    "No hay usuarios elegibles para cambiar de rol.",
+                    "Sin usuarios disponibles", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        Usuario seleccionado = (Usuario) JOptionPane.showInputDialog(
+                this, "Selecciona el usuario:", "Cambiar Rol",
+                JOptionPane.QUESTION_MESSAGE, null, objetivos.toArray(), objetivos.get(0));
+        if (seleccionado == null) {
+            return;
+        }
+
+        RolUsuario nuevoRol = (RolUsuario) JOptionPane.showInputDialog(
+                this, "Nuevo rol para " + seleccionado.getNombre() + ":", "Cambiar Rol",
+                JOptionPane.QUESTION_MESSAGE, null, obtenerRolesAsignables(), null);
+        if (nuevoRol == null) {
+            return;
+        }
+
+        ResultadoOperacion resultado = gestorSigma.actualizarRol(seleccionado.getNombre(), nuevoRol, usuarioActual);
+        mostrarResultado(resultado);
+    }
+
+    private void accionResetearSistema() {
+        int confirmacion = JOptionPane.showConfirmDialog(this,
+                "Esta acción eliminará TODOS los usuarios y metas del sistema y no se puede deshacer.\n"
+                        + "¿Está seguro de que desea resetear el sistema?",
+                "Confirmar Reseteo del Sistema",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+
+        if (confirmacion != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        gestorSigma.resetearSistema();
+
+        JOptionPane.showMessageDialog(this,
+                "El sistema fue reseteado correctamente. Debe iniciar sesión nuevamente.",
+                "Sistema Reseteado", JOptionPane.INFORMATION_MESSAGE);
+
+        dispose();
+        new LoginFrame(gestorSigma).setVisible(true);
+    }
+
+    private void accionCerrarSesion() {
+        dispose();
+        new LoginFrame(gestorSigma).setVisible(true);
+    }
+
+    private void mostrarResultado(ResultadoOperacion resultado) {
+        if (resultado.isExito()) {
+            JOptionPane.showMessageDialog(this, resultado.getMensaje(), "Éxito",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(this, resultado.getMensaje(), "Error",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
