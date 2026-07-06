@@ -35,10 +35,15 @@ public class MenuLiderFrame extends JFrame {
 
         btnCrearMeta.addActionListener(e -> {
             String nombre = JOptionPane.showInputDialog("Nombre de la meta:");
-            if (nombre != null && !nombre.isBlank()) {
-                boolean ok = controlador.agregarMeta(nombre);
-                JOptionPane.showMessageDialog(this, ok ? "Meta creada." : "La meta ya existe.");
+            if (nombre == null) return;
+            if (nombre.isBlank()) {
+                JOptionPane.showMessageDialog(this,
+                        "El nombre de la meta no puede estar vacío ni contener solo espacios.",
+                        "Nombre inválido", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            boolean ok = controlador.agregarMeta(nombre);
+            JOptionPane.showMessageDialog(this, ok ? "Meta creada." : "La meta ya existe.");
         });
 
         btnAsignarTarea.addActionListener(e -> {
