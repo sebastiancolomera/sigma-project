@@ -6,6 +6,7 @@ import sigma.modelo.Usuario;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class VerUsuariosDialog extends JDialog {
 
@@ -14,10 +15,12 @@ public class VerUsuariosDialog extends JDialog {
         setSize(400, 300);
         setLocationRelativeTo(parent);
 
-        List<Usuario> usuarios = controlador.getUsuarios();
+        List<Usuario> usuarios = controlador.getUsuarios().stream()
+                .filter(u -> !u.esSuperusuario())
+                .collect(Collectors.toList());
 
         if (usuarios.isEmpty()) {
-            JLabel lblMensaje = new JLabel("No hay usuarios registrados.");
+            JLabel lblMensaje = new JLabel("No hay usuarios registrados (excluyendo superusuario).");
             lblMensaje.setHorizontalAlignment(SwingConstants.CENTER);
             add(lblMensaje);
             return;
@@ -36,7 +39,7 @@ public class VerUsuariosDialog extends JDialog {
 
         JScrollPane scroll = new JScrollPane(panel);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        add(scroll);
+        add(scroll, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel();
         JButton btnCerrar = new JButton("Cerrar");
