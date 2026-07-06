@@ -3,6 +3,9 @@ package sigma.app;
 import sigma.modelo.*;
 import sigma.persistencia.GestorJSON;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -35,6 +38,12 @@ public class GestorSigma {
     public void resetearSistema() {
         servicioUsuarios.resetear();
         servicioMetas.resetear();
+        try {
+            Files.deleteIfExists(Path.of(SigmaConfig.RUTA_USUARIOS));
+            Files.deleteIfExists(Path.of(SigmaConfig.RUTA_METAS));
+        } catch (IOException e) {
+            System.err.println("No se pudieron eliminar los archivos de datos: " + e.getMessage());
+        }
     }
 
     public void actualizarEstadosVencidos() {

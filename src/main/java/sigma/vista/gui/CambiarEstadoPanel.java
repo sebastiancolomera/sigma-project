@@ -42,6 +42,15 @@ public class CambiarEstadoPanel extends JPanel {
             String titulo = (String) cmbTareas.getSelectedItem();
             EstadoTarea nuevoEstado = (EstadoTarea) cmbEstado.getSelectedItem();
             if (titulo != null && nuevoEstado != null) {
+                if (nuevoEstado == EstadoTarea.COMPLETADA) {
+                    int conf = JOptionPane.showConfirmDialog(this,
+                            "¿Está seguro de marcar la tarea \"" + titulo + "\" como COMPLETADA?\n"
+                                    + "Esta acción no se puede deshacer.",
+                            "Confirmar COMPLETADA",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.WARNING_MESSAGE);
+                    if (conf != JOptionPane.YES_OPTION) return;
+                }
                 ResultadoOperacion resultado = controlador.cambiarEstadoTarea(titulo, nuevoEstado, usuario);
                 if (resultado.isExito()) {
                     JOptionPane.showMessageDialog(this, resultado.getMensaje());

@@ -18,7 +18,7 @@ public final class SeguridadUtil {
     private static final SecureRandom RANDOM = new SecureRandom();
 
     public static String hashPassword(String contrasena) {
-        if (contrasena == null) {
+        if (contrasena == null || contrasena.isBlank()) {
             throw new IllegalArgumentException("Ingrese una contraseña");
         }
         byte[] salt = new byte[LONGITUD_SALT_BYTES];

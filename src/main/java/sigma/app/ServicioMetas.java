@@ -9,13 +9,17 @@ import sigma.persistencia.GestorJSON;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ServicioMetas {
 
     private final GestorJSON gestorJSON;
     private final String rutaMetas;
     private List<Meta> metas;
+    private boolean dirty;
+    private final Map<String, Tarea> indiceTareas = new HashMap<>();
 
     public ServicioMetas(GestorJSON gestorJSON, String rutaMetas) {
         this.gestorJSON = gestorJSON;
@@ -29,9 +33,25 @@ public class ServicioMetas {
             if (m != null) {
                 this.metas.addAll(m);
             }
+            reindexar();
             migrarEstadoEntregaLegado();
         } catch (Exception e) {
             System.err.println("No se pudieron cargar las metas desde " + rutaMetas + ": " + e.getMessage());
+        }
+    }
+
+    private void marcarDirty() {
+        this.dirty = true;
+    }
+
+    private void reindexar() {
+        indiceTareas.clear();
+        for (Meta meta : metas) {
+            for (Tarea t : meta.getTareas()) {
+                if (t.getTitulo() != null) {
+                    indiceTareas.put(t.getTitulo().trim().toLowerCase(), t);
+                }
+            }
         }
     }
 
@@ -55,8 +75,11 @@ public class ServicioMetas {
 
 
     public boolean guardar() {
+        if (!dirty) return true;
         try {
-            return gestorJSON.guardarMetas(new ArrayList<>(metas), rutaMetas);
+            boolean ok = gestorJSON.guardarMetas(new ArrayList<>(metas), rutaMetas);
+            if (ok) dirty = false;
+            return ok;
         } catch (Exception e) {
             System.err.println("No se pudieron guardar las metas en " + rutaMetas + ": " + e.getMessage());
             return false;
@@ -65,6 +88,8 @@ public class ServicioMetas {
 
     public void resetear() {
         metas.clear();
+        indiceTareas.clear();
+        dirty = true;
         guardar();
     }
 
@@ -77,14 +102,21 @@ public class ServicioMetas {
         String nombreNormalizado = nombre.trim();
         if (buscarMeta(nombreNormalizado) != null) return false;
         metas.add(new Meta(nombreNormalizado));
-        guardar();
+        marcarDirty();
         return true;
     }
 
     public boolean eliminarMeta(String nombre) {
-        boolean eliminado = metas.removeIf(m -> m.getNombre().equals(nombre));
-        if (eliminado) guardar();
-        return eliminado;
+        Meta meta = buscarMeta(nombre);
+        if (meta == null) return false;
+        for (Tarea t : meta.getTareas()) {
+            if (t.getTitulo() != null) {
+                indiceTareas.remove(t.getTitulo().trim().toLowerCase());
+            }
+        }
+        metas.remove(meta);
+        marcarDirty();
+        return true;
     }
 
     public boolean agregarTareaAMeta(String nombreMeta, Tarea tarea) {
@@ -95,7 +127,8 @@ public class ServicioMetas {
         if (meta == null) return false;
         if (existeTareaConTitulo(tarea.getTitulo())) return false;
         meta.agregarTarea(tarea);
-        guardar();
+        indiceTareas.put(tarea.getTitulo().trim().toLowerCase(), tarea);
+        marcarDirty();
         return true;
     }
 
@@ -103,14 +136,11 @@ public class ServicioMetas {
         if (titulo == null || nuevo == null) {
             return new ResultadoOperacion(false, "Datos inválidos para cambiar el estado.");
         }
-        for (Meta meta : metas) {
-            for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getTitulo().equals(titulo)) {
-                    return aplicarCambioEstado(tarea, nuevo, ejecutor);
-                }
-            }
+        Tarea tarea = indiceTareas.get(titulo.trim().toLowerCase());
+        if (tarea == null) {
+            return new ResultadoOperacion(false, "Tarea no encontrada.");
         }
-        return new ResultadoOperacion(false, "Tarea no encontrada.");
+        return aplicarCambioEstado(tarea, nuevo, ejecutor);
     }
 
     private ResultadoOperacion aplicarCambioEstado(Tarea tarea, EstadoTarea nuevo, Usuario ejecutor) {
@@ -125,6 +155,11 @@ public class ServicioMetas {
                     "No tienes permiso para cambiar el estado de una tarea que no te pertenece.");
         }
 
+        if (tarea.getEstado() == EstadoTarea.COMPLETADA) {
+            return new ResultadoOperacion(false,
+                    "La tarea ya ha sido completada y no puede modificarse.");
+        }
+
         calcularEstadoEntrega(tarea);
 
         if (tarea.getEstadoEntrega() == EstadoEntrega.POSTERGADA) {
@@ -136,40 +171,26 @@ public class ServicioMetas {
         if (nuevo == EstadoTarea.COMPLETADA) {
             tarea.marcarEntregada(hoy);
         }
-        guardar();
+        marcarDirty();
         return new ResultadoOperacion(true, "Estado de la tarea actualizado correctamente.");
     }
 
     public boolean existeTareaConTitulo(String titulo) {
         if (titulo == null) return false;
-        String tituloNormalizado = titulo.trim();
-        for (Meta meta : metas) {
-            for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getTitulo() != null
-                        && tarea.getTitulo().trim().equalsIgnoreCase(tituloNormalizado)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+        return indiceTareas.containsKey(titulo.trim().toLowerCase());
     }
 
     public boolean actualizarFechasTarea(String titulo, LocalDate nuevaInicio, LocalDate nuevaTermino) {
         if (titulo == null || nuevaInicio == null || nuevaTermino == null) return false;
         if (nuevaTermino.isBefore(nuevaInicio)) return false;
         if (!ValidadorFecha.esFechaNoAnteriorAHoy(nuevaTermino)) return false;
-        for (Meta meta : metas) {
-            for (Tarea tarea : meta.getTareas()) {
-                if (tarea.getTitulo().equals(titulo)) {
-                    tarea.setFechaInicio(nuevaInicio);
-                    tarea.setFechaTermino(nuevaTermino);
-                    calcularEstadoEntrega(tarea);
-                    guardar();
-                    return true;
-                }
-            }
-        }
-        return false;
+        Tarea tarea = indiceTareas.get(titulo.trim().toLowerCase());
+        if (tarea == null) return false;
+        tarea.setFechaInicio(nuevaInicio);
+        tarea.setFechaTermino(nuevaTermino);
+        calcularEstadoEntrega(tarea);
+        marcarDirty();
+        return true;
     }
 
     public boolean eliminarTareaDeMetaPorTitulo(String nombreMeta, String tituloTarea) {
@@ -178,18 +199,14 @@ public class ServicioMetas {
         Meta meta = buscarMeta(nombreMeta);
         if (meta == null) return false;
 
-        Tarea objetivo = null;
-        for (Tarea t : meta.getTareas()) {
-            if (t.getTitulo().equals(tituloTarea)) {
-                objetivo = t;
-                break;
-            }
-        }
-
+        String clave = tituloTarea.trim().toLowerCase();
+        Tarea objetivo = indiceTareas.get(clave);
         if (objetivo == null) return false;
+        if (!meta.getTareas().contains(objetivo)) return false;
 
         meta.eliminarTarea(objetivo);
-        guardar();
+        indiceTareas.remove(clave);
+        marcarDirty();
         return true;
     }
 
@@ -205,7 +222,7 @@ public class ServicioMetas {
                 }
             }
         }
-        if (huboCambios) guardar();
+        if (huboCambios) marcarDirty();
     }
 
     private void calcularEstadoEntrega(Tarea tarea) {
@@ -243,11 +260,14 @@ public class ServicioMetas {
             }
             for (Tarea tarea : aEliminar) {
                 meta.eliminarTarea(tarea);
+                if (tarea.getTitulo() != null) {
+                    indiceTareas.remove(tarea.getTitulo().trim().toLowerCase());
+                }
                 eliminadas++;
             }
         }
 
-        if (eliminadas > 0) guardar();
+        if (eliminadas > 0) marcarDirty();
         return eliminadas;
     }
 }

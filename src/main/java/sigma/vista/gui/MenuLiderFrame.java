@@ -61,7 +61,7 @@ public class MenuLiderFrame extends JFrame {
         });
 
         btnVerTareas.addActionListener(e -> {
-            List<Usuario> usuarios = controlador.getUsuarios();
+            List<Usuario> usuarios = controlador.getUsuariosSinSuperusuario();
             if (usuarios.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No hay usuarios registrados.");
                 return;
@@ -84,7 +84,7 @@ public class MenuLiderFrame extends JFrame {
             if (seleccion == null) return;
 
             String nombreUsuario = seleccion.split(" — ")[0];
-            Usuario seleccionado = controlador.getUsuarios().stream()
+            Usuario seleccionado = controlador.getUsuariosSinSuperusuario().stream()
                     .filter(u -> u.getNombre().equals(nombreUsuario))
                     .findFirst()
                     .orElse(null);
@@ -133,6 +133,14 @@ public class MenuLiderFrame extends JFrame {
         });
 
         btnEditarFechas.addActionListener(e -> {
+            boolean hayTareas = controlador.getMetas().stream()
+                    .anyMatch(m -> !m.getTareas().isEmpty());
+            if (!hayTareas) {
+                JOptionPane.showMessageDialog(this,
+                        "No existen tareas asignadas en el sistema.",
+                        "Sin tareas", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             JDialog dialog = new JDialog(this, "Editar Fechas de Tarea", true);
             dialog.add(new EditarFechasPanel(controlador, dialog));
             dialog.pack();

@@ -249,7 +249,8 @@ class ServicioMetasTest {
     void testActualizarEstadosVencidosMarcaTareaVencida() {
         servicio.agregarMeta("Meta 1");
         Tarea tarea = new Tarea("Tarea vencida", "Descripción", usuarioDePrueba,
-                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), EstadoTarea.PENDIENTE);
+                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1),
+                EstadoTarea.PENDIENTE);
         servicio.agregarTareaAMeta("Meta 1", tarea);
 
         servicio.actualizarEstadosVencidos();
