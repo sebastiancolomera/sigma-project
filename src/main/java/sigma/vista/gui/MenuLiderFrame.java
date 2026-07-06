@@ -144,7 +144,7 @@ public class MenuLiderFrame extends JFrame {
             List<Meta> metas = controlador.getMetas();
             if (metas.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
-                        "No hay metas con tareas.",
+                        "No hay metas registradas en el sistema.",
                         "Sin metas", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }

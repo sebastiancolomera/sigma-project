@@ -53,7 +53,9 @@ public class GestionTareasPanel extends JPanel {
             String userSeleccionado = (String) cmbUsuarios.getSelectedItem();
 
             if (titulo.isEmpty() || descripcion.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Título y descripción son obligatorios.");
+                JOptionPane.showMessageDialog(this,
+                        "Título y descripción son obligatorios.",
+                        "Datos incompletos", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
