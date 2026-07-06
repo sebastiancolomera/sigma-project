@@ -6,102 +6,82 @@ import sigma.persistencia.GestorJSON;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class ServicioUsuarios {
 
     private final GestorJSON gestorJSON;
-    private final String rutaUsuarios;
-    private List<Usuario> usuarios;
+    private final String rutaArchivo;
+    private ArrayList<Usuario> usuarios = new ArrayList<>();
 
-    public ServicioUsuarios(GestorJSON gestorJSON, String rutaUsuarios) {
+    public ServicioUsuarios(GestorJSON gestorJSON, String rutaArchivo) {
         this.gestorJSON = gestorJSON;
-        this.rutaUsuarios = rutaUsuarios;
-        this.usuarios = new ArrayList<>();
+        this.rutaArchivo = rutaArchivo;
     }
 
     public void cargar() {
-        try {
-            List<Usuario> u = gestorJSON.cargarUsuarios(rutaUsuarios);
-            if (u != null) {
-                this.usuarios.addAll(u);
-            }
-        } catch (Exception e) {
-            System.err.println("No se pudieron cargar los usuarios desde " + rutaUsuarios + ": " + e.getMessage());
-        }
+        this.usuarios = gestorJSON.cargarUsuarios(rutaArchivo);
     }
 
     public boolean guardar() {
-        try {
-            return gestorJSON.guardarUsuarios(new ArrayList<>(usuarios), rutaUsuarios);
-        } catch (Exception e) {
-            System.err.println("No se pudieron guardar los usuarios en " + rutaUsuarios + ": " + e.getMessage());
-            return false;
-        }
+        return gestorJSON.guardarUsuarios(usuarios, rutaArchivo);
     }
 
     public void resetear() {
-        usuarios.clear();
-        String hash = SeguridadUtil.hashPassword(SigmaConfig.ADMIN_PASSWORD);
-        usuarios.add(new Usuario(SigmaConfig.ADMIN_NOMBRE, hash, RolUsuario.SUPERUSUARIO));
-        guardar();
+        this.usuarios = new ArrayList<>();
     }
 
     public boolean registrarUsuario(String nombre, String contrasena, RolUsuario rol) {
-        if (nombre == null || nombre.isBlank()) return false;
-        if (contrasena == null || contrasena.isBlank()) return false;
-        if (rol == null) return false;
+        if (nombre == null || nombre.isBlank() || contrasena == null || contrasena.isBlank()) {
+            return false;
+        }
 
-        boolean existe = usuarios.stream().anyMatch(u -> u.getNombre().equals(nombre));
-        if (existe) return false;
+        String nombreNormalizado = nombre.trim();
 
-        String hash = SeguridadUtil.hashPassword(contrasena);
-        usuarios.add(new Usuario(nombre, hash, rol));
-        guardar();
+        boolean existe = usuarios.stream()
+                .anyMatch(u -> u.getNombre().equalsIgnoreCase(nombreNormalizado));
+        if (existe) {
+            return false;
+        }
+
+        usuarios.add(new Usuario(nombreNormalizado, contrasena, rol));
         return true;
     }
 
     public Usuario autenticarUsuario(String nombre, String contrasena) {
-        for (Usuario u : usuarios) {
-            if (u.getNombre().equals(nombre)
-                    && SeguridadUtil.verificarPassword(contrasena, u.getContrasena())) {
-                return u;
-            }
+        if (nombre == null || contrasena == null) {
+            return null;
         }
-        return null;
+        return usuarios.stream()
+                .filter(u -> u.getNombre().equalsIgnoreCase(nombre) && u.getContrasena().equals(contrasena))
+                .findFirst()
+                .orElse(null);
     }
 
     public ResultadoOperacion actualizarRol(String nombreUsuario, RolUsuario nuevoRol, Usuario ejecutor) {
-        if (nombreUsuario == null || nombreUsuario.isBlank() || nuevoRol == null) {
-            return new ResultadoOperacion(false, "Datos inválidos para actualizar el rol.");
+        Optional<Usuario> objetivo = usuarios.stream()
+                .filter(u -> u.getNombre().equalsIgnoreCase(nombreUsuario))
+                .findFirst();
+
+        if (objetivo.isEmpty()) {
+            return new ResultadoOperacion(false, "El usuario indicado no existe.");
         }
 
-        if  (ejecutor != null && ejecutor.esSuperusuario() && ejecutor.getNombre().equalsIgnoreCase(nombreUsuario)) {
-            return new ResultadoOperacion(false, "El superusuario no puede cambiar su propio rol.");
-        }
-
-        for (Usuario u : usuarios) {
-            if (u.getNombre().equalsIgnoreCase(nombreUsuario)) {
-                u.setRol(nuevoRol);
-                guardar();
-                return new ResultadoOperacion(true, "Rol actualizado.");
-            }
-        }
-        return new ResultadoOperacion(false, "Usuario no encontrado.");
+        objetivo.get().setRol(nuevoRol);
+        return new ResultadoOperacion(true, "Rol actualizado correctamente.");
     }
 
     public boolean eliminarUsuario(String nombreUsuario) {
-        boolean eliminado = usuarios.removeIf(u -> u.getNombre().equals(nombreUsuario));
-        if (eliminado) guardar();
-        return eliminado;
+        return usuarios.removeIf(u -> u.getNombre().equalsIgnoreCase(nombreUsuario));
     }
 
     public List<Usuario> getUsuarios() {
-        return new ArrayList<>(usuarios);
+        return new ArrayList<>(usuarios); // copia defensiva
     }
 
     public List<Usuario> getUsuariosSinSuperusuario() {
-        return getUsuarios().stream()
+        return usuarios.stream()
                 .filter(u -> !u.esSuperusuario())
                 .collect(Collectors.toList());
     }
