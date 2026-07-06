@@ -58,10 +58,10 @@ public class GestorSigma {
         if (usuarioEliminado) {
             try {
                 servicioMetas.eliminarTareasDeUsuario(nombreUsuario);
-            } catch (Exception e) {
+            } catch (RuntimeException e) {
                 System.err.println("El usuario '" + nombreUsuario
-                        + "' fue eliminado, pero no se pudo completar la cascada de sus tareas: "
-                        + e.getMessage());
+                        + "' fue eliminado, pero no se pudo completar la cascada de sus tareas:");
+                e.printStackTrace();
             }
         }
         return usuarioEliminado;
