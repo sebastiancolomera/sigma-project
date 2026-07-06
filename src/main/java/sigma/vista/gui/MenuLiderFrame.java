@@ -15,19 +15,13 @@ public class MenuLiderFrame extends JFrame {
     private final GestorSigma controlador;
     private final Usuario usuarioActual;
 
-    /**
-     * @param usuarioActual el líder que inició sesión. Se necesita para
-     *                       poder pasarlo a CambiarEstadoPanel y así filtrar
-     *                       y restringir el cambio de estado solo a sus
-     *                       propias tareas (Tarea D-3).
-     */
     public MenuLiderFrame(GestorSigma controlador, Usuario usuarioActual) {
         this.controlador = controlador;
         this.usuarioActual = usuarioActual;
         setTitle("SIGMA - Menú Líder");
         setSize(450, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(8, 1, 10, 10));
+        setLayout(new GridLayout(9, 1, 10, 10));
 
         JButton btnCrearMeta = new JButton("Crear Meta");
         JButton btnAsignarTarea = new JButton("Asignar Tarea");
@@ -41,10 +35,15 @@ public class MenuLiderFrame extends JFrame {
 
         btnCrearMeta.addActionListener(e -> {
             String nombre = JOptionPane.showInputDialog("Nombre de la meta:");
-            if (nombre != null && !nombre.trim().isEmpty()) {
-                boolean ok = controlador.agregarMeta(nombre);
-                JOptionPane.showMessageDialog(this, ok ? "Meta creada." : "La meta ya existe.");
+            if (nombre == null) return;
+            if (nombre.isBlank()) {
+                JOptionPane.showMessageDialog(this,
+                        "El nombre de la meta no puede estar vacío ni contener solo espacios.",
+                        "Nombre inválido", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+            boolean ok = controlador.agregarMeta(nombre);
+            JOptionPane.showMessageDialog(this, ok ? "Meta creada." : "La meta ya existe.");
         });
 
         btnAsignarTarea.addActionListener(e -> {
@@ -145,7 +144,7 @@ public class MenuLiderFrame extends JFrame {
             List<Meta> metas = controlador.getMetas();
             if (metas.isEmpty()) {
                 JOptionPane.showMessageDialog(this,
-                        "No hay metas con tareas.",
+                        "No hay metas registradas en el sistema.",
                         "Sin metas", JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
@@ -219,14 +218,14 @@ public class MenuLiderFrame extends JFrame {
             new LoginFrame(controlador).setVisible(true);
         });
 
+        add(btnVerUsuarios);
         add(btnCrearMeta);
+        add(btnProgreso);
         add(btnAsignarTarea);
         add(btnVerTareas);
-        add(btnProgreso);
         add(btnCambiarEstado);
         add(btnEditarFechas);
         add(btnEliminarTarea);
-        add(btnVerUsuarios);
         add(btnCerrar);
     }
 }

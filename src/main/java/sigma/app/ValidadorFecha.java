@@ -15,4 +15,8 @@ public final class ValidadorFecha {
             return false;
         }
     }
+
+    public static boolean esFechaNoAnteriorAHoy(LocalDate fecha) {
+        return !fecha.isBefore(LocalDate.now());
+    }
 }
