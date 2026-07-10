@@ -10,6 +10,7 @@ import sigma.persistencia.GestorJSON;
 
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -247,28 +248,50 @@ class ServicioMetasTest {
     @Test
     @DisplayName("actualizarEstadosVencidos marca como FUERA_DE_PLAZO las tareas vencidas no completadas")
     void testActualizarEstadosVencidosMarcaTareaVencida() {
-        servicio.agregarMeta("Meta 1");
-        Tarea tarea = new Tarea("Tarea vencida", "Descripción", usuarioDePrueba,
-                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1),
-                EstadoTarea.PENDIENTE);
-        servicio.agregarTareaAMeta("Meta 1", tarea);
+        // agregarTareaAMeta() ya no permite crear tareas con fechas pasadas (D-2/D-3),
+        // así que para simular una tarea que era válida al crearse pero venció con el
+        // paso del tiempo, sembramos los datos directamente vía GestorJSON y los
+        // cargamos con servicio.cargar(), tal como ocurre con datos persistidos reales.
+        sembrarMetaConTarea("Meta 1", "Tarea vencida",
+                LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), EstadoTarea.PENDIENTE);
 
+        servicio.cargar();
         servicio.actualizarEstadosVencidos();
 
-        assertEquals(EstadoEntrega.FUERA_DE_PLAZO, tarea.getEstadoEntrega());
+        Tarea tareaCargada = servicio.buscarMeta("Meta 1").getTareas().get(0);
+        assertEquals(EstadoEntrega.FUERA_DE_PLAZO, tareaCargada.getEstadoEntrega());
     }
 
     @Test
     @DisplayName("actualizarEstadosVencidos no modifica tareas completadas aunque estén vencidas")
     void testActualizarEstadosVencidosNoTocaCompletadas() {
-        servicio.agregarMeta("Meta 1");
-        Tarea tarea = new Tarea("Tarea completada", "Descripción", usuarioDePrueba,
+        sembrarMetaConTarea("Meta 1", "Tarea completada",
                 LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), EstadoTarea.COMPLETADA);
-        servicio.agregarTareaAMeta("Meta 1", tarea);
 
+        servicio.cargar();
         servicio.actualizarEstadosVencidos();
 
-        assertEquals(EstadoTarea.COMPLETADA, tarea.getEstado());
+        Tarea tareaCargada = servicio.buscarMeta("Meta 1").getTareas().get(0);
+        assertEquals(EstadoTarea.COMPLETADA, tareaCargada.getEstado());
+        assertNotEquals(EstadoEntrega.FUERA_DE_PLAZO, tareaCargada.getEstadoEntrega());
+    }
+
+    /**
+     * Guarda directamente en el archivo JSON de metas una meta con una tarea,
+     * saltándose las validaciones de agregarTareaAMeta(). Simula datos que
+     * fueron válidos al persistirse (por ejemplo, en una sesión anterior) pero
+     * cuyas fechas ya pasaron al momento de ejecutar el test.
+     */
+    private void sembrarMetaConTarea(String nombreMeta, String tituloTarea,
+                                     LocalDate fechaInicio, LocalDate fechaTermino, EstadoTarea estado) {
+        Meta meta = new Meta(nombreMeta);
+        Tarea tarea = new Tarea(tituloTarea, "Descripción", usuarioDePrueba,
+                fechaInicio, fechaTermino, estado);
+        meta.agregarTarea(tarea);
+
+        ArrayList<Meta> metas = new ArrayList<>();
+        metas.add(meta);
+        new GestorJSON().guardarMetas(metas, tempDir.resolve("metas.json").toString());
     }
 
     @Test
