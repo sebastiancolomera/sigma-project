@@ -27,15 +27,17 @@ class GestorSigmaTest {
     }
 
     @Test
-    @DisplayName("resetearSistema limpia usuarios y metas, y deja solo al admin")
+    @DisplayName("resetearSistema limpia usuarios y metas por completo (sin admin autocreado)")
     void testResetearSistema() {
         gestor.registrarUsuario("pedro", "clave123", RolUsuario.USUARIO);
         gestor.agregarMeta("Meta de prueba");
 
         gestor.resetearSistema();
 
-        assertEquals(1, gestor.getUsuarios().size());
-        assertTrue(gestor.getUsuarios().get(0).esSuperusuario());
+        // resetearSistema() deja el sistema completamente vacío; el registro
+        // de un nuevo SuperUsuario es un paso manual posterior (ver
+        // RegistroSuperusuarioDialog, invocado tras el reseteo desde la UI).
+        assertTrue(gestor.getUsuarios().isEmpty());
         assertTrue(gestor.getMetas().isEmpty());
     }
 
@@ -83,11 +85,11 @@ class GestorSigmaTest {
     void testActualizarFechasTareaExitosaViaFachada() {
         gestor.agregarMeta("Meta X");
         Tarea tarea = new Tarea("Tarea 1", "Descripción", null,
-                LocalDate.of(2026, 5, 1), LocalDate.of(2026, 5, 10), EstadoTarea.PENDIENTE);
+                LocalDate.now(), LocalDate.now().plusDays(9), EstadoTarea.PENDIENTE);
         gestor.agregarTareaAMeta("Meta X", tarea);
 
-        LocalDate nuevaInicio = LocalDate.of(2026, 6, 1);
-        LocalDate nuevaTermino = LocalDate.of(2026, 6, 15);
+        LocalDate nuevaInicio = LocalDate.now().plusDays(31);
+        LocalDate nuevaTermino = LocalDate.now().plusDays(45);
 
         assertTrue(gestor.actualizarFechasTarea("Tarea 1", nuevaInicio, nuevaTermino));
 
@@ -107,16 +109,18 @@ class GestorSigmaTest {
     @DisplayName("actualizarFechasTarea a través de la fachada rechaza fecha de término anterior a la de inicio")
     void testActualizarFechasTareaFechaInvalidaViaFachada() {
         gestor.agregarMeta("Meta Y");
+        LocalDate inicioOriginal = LocalDate.now();
+        LocalDate terminoOriginal = LocalDate.now().plusDays(9);
         Tarea tarea = new Tarea("Tarea 2", "Descripción", null,
-                LocalDate.of(2026, 5, 1), LocalDate.of(2026, 5, 10), EstadoTarea.PENDIENTE);
+                inicioOriginal, terminoOriginal, EstadoTarea.PENDIENTE);
         gestor.agregarTareaAMeta("Meta Y", tarea);
 
         assertFalse(gestor.actualizarFechasTarea("Tarea 2",
-                LocalDate.of(2026, 6, 15), LocalDate.of(2026, 6, 1)));
+                LocalDate.now().plusDays(45), LocalDate.now().plusDays(31)));
 
         Tarea sinCambios = gestor.getMetas().get(0).getTareas().get(0);
-        assertEquals(LocalDate.of(2026, 5, 1), sinCambios.getFechaInicio());
-        assertEquals(LocalDate.of(2026, 5, 10), sinCambios.getFechaTermino());
+        assertEquals(inicioOriginal, sinCambios.getFechaInicio());
+        assertEquals(terminoOriginal, sinCambios.getFechaTermino());
     }
 
     @Test
