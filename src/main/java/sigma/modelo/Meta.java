@@ -33,10 +33,6 @@ public class Meta {
         return new ArrayList<>(tareas);
     }
 
-    public void setTareas(ArrayList<Tarea> tareas) {
-        this.tareas = tareas;
-    }
-
     public void agregarTarea(Tarea tarea) {
         this.tareas.add(tarea);
     }
