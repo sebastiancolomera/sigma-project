@@ -8,8 +8,6 @@ import java.awt.*;
 
 public class RegistroSuperusuarioDialog extends JDialog {
 
-    private boolean registrado = false;
-
     public RegistroSuperusuarioDialog(GestorSigma controlador) {
         setTitle("Registro de SuperUsuario");
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -75,7 +73,6 @@ public class RegistroSuperusuarioDialog extends JDialog {
             boolean ok = controlador.registrarUsuario(nombre, pass, RolUsuario.SUPERUSUARIO);
             if (ok) {
                 controlador.guardarDatos();
-                registrado = true;
                 JOptionPane.showMessageDialog(this,
                         "SuperUsuario registrado correctamente.",
                         "Éxito", JOptionPane.INFORMATION_MESSAGE);
@@ -108,9 +105,5 @@ public class RegistroSuperusuarioDialog extends JDialog {
         if (resp == JOptionPane.YES_OPTION) {
             System.exit(0);
         }
-    }
-
-    public boolean isRegistrado() {
-        return registrado;
     }
 }

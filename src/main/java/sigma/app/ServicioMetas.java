@@ -146,8 +146,6 @@ public class ServicioMetas {
     private ResultadoOperacion aplicarCambioEstado(Tarea tarea, EstadoTarea nuevo, Usuario ejecutor) {
         LocalDate hoy = LocalDate.now();
 
-        // D-3: el líder solo puede cambiar el estado de sus propias tareas.
-        // El superusuario (ejecutor == null o sin rol líder) no queda sujeto a esta restricción.
         if (ejecutor != null && ejecutor.esLider()
                 && (tarea.getAsignado() == null
                 || !tarea.getAsignado().getNombre().equals(ejecutor.getNombre()))) {

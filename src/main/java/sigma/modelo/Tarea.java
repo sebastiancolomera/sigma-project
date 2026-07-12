@@ -9,7 +9,7 @@ public class Tarea {
     private LocalDate fechaInicio;
     private LocalDate fechaTermino;
     private EstadoTarea estado;
-    private EstadoEntrega estadoEntrega;  // ← CORREGIDO
+    private EstadoEntrega estadoEntrega;
 
     public Tarea() {
     }

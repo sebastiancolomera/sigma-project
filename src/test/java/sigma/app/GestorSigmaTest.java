@@ -33,10 +33,6 @@ class GestorSigmaTest {
         gestor.agregarMeta("Meta de prueba");
 
         gestor.resetearSistema();
-
-        // resetearSistema() deja el sistema completamente vacío; el registro
-        // de un nuevo SuperUsuario es un paso manual posterior (ver
-        // RegistroSuperusuarioDialog, invocado tras el reseteo desde la UI).
         assertTrue(gestor.getUsuarios().isEmpty());
         assertTrue(gestor.getMetas().isEmpty());
     }

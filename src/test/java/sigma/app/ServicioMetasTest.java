@@ -248,10 +248,6 @@ class ServicioMetasTest {
     @Test
     @DisplayName("actualizarEstadosVencidos marca como FUERA_DE_PLAZO las tareas vencidas no completadas")
     void testActualizarEstadosVencidosMarcaTareaVencida() {
-        // agregarTareaAMeta() ya no permite crear tareas con fechas pasadas (D-2/D-3),
-        // así que para simular una tarea que era válida al crearse pero venció con el
-        // paso del tiempo, sembramos los datos directamente vía GestorJSON y los
-        // cargamos con servicio.cargar(), tal como ocurre con datos persistidos reales.
         sembrarMetaConTarea("Meta 1", "Tarea vencida",
                 LocalDate.now().minusDays(10), LocalDate.now().minusDays(1), EstadoTarea.PENDIENTE);
 
@@ -276,12 +272,6 @@ class ServicioMetasTest {
         assertNotEquals(EstadoEntrega.FUERA_DE_PLAZO, tareaCargada.getEstadoEntrega());
     }
 
-    /**
-     * Guarda directamente en el archivo JSON de metas una meta con una tarea,
-     * saltándose las validaciones de agregarTareaAMeta(). Simula datos que
-     * fueron válidos al persistirse (por ejemplo, en una sesión anterior) pero
-     * cuyas fechas ya pasaron al momento de ejecutar el test.
-     */
     private void sembrarMetaConTarea(String nombreMeta, String tituloTarea,
                                      LocalDate fechaInicio, LocalDate fechaTermino, EstadoTarea estado) {
         Meta meta = new Meta(nombreMeta);
