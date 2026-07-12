@@ -59,7 +59,8 @@ sigma-project/
 │   │   │   ├── Tarea.java
 │   │   │   ├── RolUsuario.java          # Enum: SUPERUSUARIO, LIDER, USUARIO
 │   │   │   ├── EstadoTarea.java         # Enum: PENDIENTE, EN_PROCESO, COMPLETADA
-│   │   │   └── EstadoEntrega.java       # Enum: EN_PLAZO, ENTREGADA, ENTREGADA_FUERA_DE_PLAZO, FUERA_DE_PLAZO, POSTERGADA
+│   │   │   └── EstadoEntrega.java       # Enum: EN_PLAZO, ENTREGADA, ENTREGADA_FUERA_DE_PLAZO,
+|   |   |                                         FUERA_DE_PLAZO, POSTERGADA
 │   │   ├── persistencia/
 │   │   │   └── GestorJSON.java          # Serialización/deserialización JSON con Gson
 │   │   └── vista/gui/               # Capa vista (Swing)
