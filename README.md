@@ -49,7 +49,7 @@ sigma-project/
 │   │   │   ├── GestorSigma.java         # Fachada principal (controlador central)
 │   │   │   ├── SigmaConfig.java         # Constantes (rutas, admin)
 │   │   │   ├── ResultadoOperacion.java  # DTO para resultados con mensaje
-│   │   │   ├── SeguridadUtil.java       # Hashing PBKDF2 (no integrado aún)
+│   │   │   ├── SeguridadUtil.java       # Hashing PBKDF2
 │   │   │   ├── ServicioUsuarios.java    # Lógica CRUD de usuarios
 │   │   │   ├── ServicioMetas.java       # Lógica CRUD de metas y tareas
 │   │   │   └── ValidadorFecha.java      # Validaciones de fecha
